@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Member_Status__c</fullName>
+    <externalId>false</externalId>
+    <label>Member Status</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>RESILI Account Created</fullName>
+                <default>false</default>
+                <label>RESILI Account Created</label>
+            </value>
+            <value>
+                <fullName>BHA Completed</fullName>
+                <default>false</default>
+                <label>BHA Completed</label>
+            </value>
+            <value>
+                <fullName>Post-Coaching Survey Completed</fullName>
+                <default>false</default>
+                <label>Post-Coaching Survey Completed</label>
+            </value>
+            <value>
+                <fullName>1-Year Survey Completed</fullName>
+                <default>false</default>
+                <label>1-Year Survey Completed</label>
+            </value>
+            <value>
+                <fullName>2-Year Survey Completed</fullName>
+                <default>false</default>
+                <label>2-Year Survey Completed</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

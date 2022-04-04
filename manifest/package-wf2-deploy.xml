@@ -16,8 +16,9 @@
         <members>GettingStartedController</members>
         <members>GettingStartedController_Test</members>
         <members>SurveyResponseTriggerHandler</members>
-        <members>SurveyResponseTriggerHandler_Test</members>
         <members>SurveyResponseTrigger_Test</members>
+        <members>SurveyResponseParser</members>
+        <members>SurveyResponseParser_Test</members>
         <members>TestDataFactory</members>
         <members>Resili</members>
         <members>ResiliMock</members>

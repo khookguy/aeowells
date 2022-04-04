@@ -26,13 +26,9 @@ public class SurveyResponseTriggerHandler {
       WHERE Id = :srId
       LIMIT 1
     ];
-    String bhaPayload = generateBHAPayload(
+    String bhaPayload = SurveyResponseParser.generateBHAPayload(
       surveyResponse.Full_Survey_Response__c
     );
     Resili.activate(email, bhaPayload);
-  }
-
-  public static String generateBHAPayload(String fullSurveyResponse) {
-    return '{"business_health_assessment":{"completion_date":"20220331","survey_id":"survey_id","response_id":"response_id"}, "course_groups":["group1","group2"]}';
   }
 }

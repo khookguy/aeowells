@@ -44,6 +44,7 @@ global class CreateMemberInbound {
                     if(member != null){
                         response.memberId = member.Id;
                         response.status = 'Success';
+                        notifyCohortMembers(firstName, lastName, email, businessName, programId, cohortId);
                     }
                     
                 }
@@ -66,7 +67,7 @@ global class CreateMemberInbound {
     public static Id insertContact(Contact con, String businessName) {
         system.debug('==> shoot insertContact ');
         String contactId = '';
-        String accountId = getAccount(businessName);
+        String accountId = getOrCreateAccount(businessName);
 		system.debug('==> accountId ' + accountId);
         con.AccountId = accountId;
         con.RecordTypeId = individualContactRecTypeId;
@@ -116,11 +117,11 @@ global class CreateMemberInbound {
     }
 
     /**
-     * Return an account with the specified businessName and if one does not exist, created it.
+     * Return an account with the specified businessName and if one does not exist, create it.
      * @param  businessName businessName description
      * @return the Account Id
      */
-    public static Id getAccount(String businessName){
+    public static Id getOrCreateAccount(String businessName){
         system.debug('==> shoot getAccount ');
         String response = null;
         system.debug('==> businessName ' + businessName);
@@ -304,8 +305,6 @@ global class CreateMemberInbound {
     public static Program_Membership__c createMember(String firstName, String lastName, String email, 
         String businessName, String programId, String cohortId) {
 
-        // TODO need to create an Account with businessName if it does not exist and attache to Contact
-
         Program_Membership__c programMember = null;
         if(String.isNotBlank(firstName) && String.isNotBlank(lastName) && String.isNotBlank(email)){
             Contact con = new Contact();
@@ -335,5 +334,61 @@ global class CreateMemberInbound {
             getOrCreateProgramPartnerMember(programId, cohortId);
         }
         return programMember;
+    }
+
+    /**
+     * @description Send an email to notify cohort members of a newly activated RESILI account for a new member of
+     * their cohort.
+     * @param  firstName    Newly activate member's first name
+     * @param  lastName     Newly activate member's last name
+     * @param  email        Newly activate member's email
+     * @param  businessName Newly activate member's business
+     * @param  programId    The programId of the program they just joined
+     * @param  cohortId     The cohortId within the program that they are part of.
+     */
+    public static void notifyCohortMembers(String firstName, String lastName, String email, String businessName, String programId, String cohortId) {
+
+        String programName = [SELECT Name from Program__c where Id = :programId LIMIT 1].Name;
+        String cohortName = [SELECT Name from Account where Id = :cohortId LIMIT 1].Name;
+        // get the organization wide email address
+        List<OrgWideEmailAddress> orgEmail = [SELECT Id, Address, DisplayName, Purpose, IsAllowAllProfiles FROM OrgWideEmailAddress WHERE Address = 'info@aeoworks.org'];
+        String fromEmail = '';
+        if(orgEmail.size() > 0)
+            fromEmail = orgEmail[0].Id;
+        // get the email addresses of all the cohort members
+        List<Contact> cohortMembers = [SELECT Id, Email FROM Contact WHERE AccountId = :cohortId];
+        String[] emailList = new List<String>();
+        for (Contact c : cohortMembers) {
+            emailList.add(c.Email);
+        }
+        emailList.add('rkon@abcdandcompany.com');
+        emailList.add('mhansen@abcdandcompany.com');
+        Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+        // mail.setTemplateId(??)
+        mail.setToAddresses(emailList);
+        mail.setOrgWideEmailAddressId(fromEmail);
+        mail.setSubject( 'Resilli Activation Completed' );
+        String template = 'Resilli Activation has been completed for: {0} {1} with email {2} and business named {3}. They are now members of the {4} program in cohort {5}.';
+        List<String> params = new List<String>{firstName, LastName, email, businessName, programName, cohortName};
+        String formattedBody = String.format(template, params);
+        mail.setPlainTextBody(formattedBody);
+        mail.setToAddresses(emailList);
+        List<Messaging.SingleEmailMessage> mailAsList = new List<Messaging.SingleEmailMessage> {mail};
+        Messaging.SendEmailResult [] r = Messaging.sendEmail(mailAsList);
+        if (!r[0].isSuccess()) {
+            Messaging.SendEmailError[] errors = r[0].getErrors();
+            String errMsg = '';
+            Boolean firstLoop = TRUE;
+            for (Messaging.SendEmailError me: errors) {
+                if (firstLoop) {
+                    errMsg += me.getStatusCode() + ' ' + me.getMessage();
+                    firstLoop = FALSE;
+                } else {
+                    errMsg += ' | ' + me.getStatusCode() + ' ' + me.getMessage();
+                }
+            }
+            throw new EmailException(errMsg);
+        }
+
     }
 }

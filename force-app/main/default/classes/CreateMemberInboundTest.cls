@@ -13,7 +13,7 @@ private class CreateMemberInboundTest {
         String newAcctName = TestDataFactory.createUniqueName('TestAccount');
         List<Account> acctList = [SELECT Id FROM Account WHERE Name =: newAcctName AND RecordTypeId =: smallBusinessAccountRecTypeId LIMIT 1];
         System.assert(acctList.size() == 0, 'An account with name '+newAcctName+' should not exist.');
-        String newlyCreated = CreateMemberInbound.getAccount(newAcctName);
+        String newlyCreated = CreateMemberInbound.getOrCreateAccount(newAcctName);
         acctList = [SELECT Id, Name FROM Account WHERE Id =: newlyCreated AND RecordTypeId =: smallBusinessAccountRecTypeId LIMIT 1];
         System.assert(acctList.size() == 1, 'An account with name '+newAcctName+' should have been created.');
         System.assert(acctList[0].Name == newAcctName, 'The name of the new account should be '+newAcctName+' and not '+acctList[0].Name+'.');
@@ -33,7 +33,7 @@ private class CreateMemberInboundTest {
         Id existingAcctId = acctList[0].Id;
 
         // check that getAccount does not create a new one, but finds the existing one
-        String existingAcct = CreateMemberInbound.getAccount(newAcctName);
+        String existingAcct = CreateMemberInbound.getOrCreateAccount(newAcctName);
         acctList = [SELECT Id, Name FROM Account WHERE Id =: existingAcct AND RecordTypeId =: smallBusinessAccountRecTypeId LIMIT 1];
         System.assert(acctList.size() == 1, 'getAccount should have returned exactly one account with name '+newAcctName+'.');
         System.assertEquals(newAcctName, acctList[0].Name, 'The name of the account returned by getAccount should be '+newAcctName+' and not '+acctList[0].Name+'.');
@@ -287,6 +287,7 @@ private class CreateMemberInboundTest {
         String cohortName = TestDataFactory.createUniqueName('Cohort');
         Account cohort = new Account(Name=cohortName);
         insert cohort;
+        Id cohortId = [SELECT Id FROM Account WHERE Name = :cohortName LIMIT 1].Id;
 
         Program_Membership__c pm = CreateMemberInbound.createMember(
             firstName, 
@@ -294,7 +295,7 @@ private class CreateMemberInboundTest {
             email, 
             businessName, 
             program.Id, 
-            cohort.Id);
+            cohortId);
         
         system.assertNotEquals(null, pm);
         List<Contact> memberList = [SELECT Id, FirstName, LastName, Email, AccountId FROM Contact WHERE Id =: pm.Individual__c LIMIT 1];
@@ -379,6 +380,39 @@ private class CreateMemberInboundTest {
             '00175000007cOaxAAE'
         );
         //system.assertNotEquals(null, pmem, 'Should not be null');
+    }
+
+    @IsTest 
+    /**
+     * @description Tests the notification of cohort members via Email.
+     * 
+     * NOTE: FOR THIS TEST TO PASS THE SANDBOX MUST HAVE EMAIL > DELIVERABILITY > ACCESS TO SEND EMAIL SET TO 'ALL EMAIL'
+     */
+    static void testNotifyCohortMembers_happy_path() {
+        String firstName = 'Sam';
+        String lastName = TestDataFactory.createUniqueName('Last');
+        String email = firstName+'.'+lastName+'@test.com';
+        String businessName = TestDataFactory.createUniqueName('Business');
+        String programName = TestDataFactory.createUniqueName('Program');
+        Program__c program = TestDataFactory.createProgram(programName, 'A very good program');
+        String cohortName = TestDataFactory.createUniqueName('Cohort');
+        Account cohort = new Account(Name=cohortName);
+        insert cohort;
+        Id cohortId = [SELECT Id FROM Account WHERE Name = :cohortName LIMIT 1].Id;
+
+        Test.startTest();
+        System.assertEquals(0, Limits.getEmailInvocations(), 'No emails should have been sent.');
+        EmailException emailException = null;
+        try {
+            CreateMemberInbound.notifyCohortMembers(firstName, lastName, email, businessName, program.Id, cohortId);    
+        } catch (EmailException e) {
+            emailException = e;
+            System.debug('Error notifying Cohort Members: ' + e.getMessage());
+        }        
+        System.assertEquals(null, emailException, 'An exception was thrown during notification of cohort members.');
+        System.debug('Number of emails sent: ' + Limits.getEmailInvocations());
+        System.assert(Limits.getEmailInvocations() > 0, 'Emails should have been sent.');
+        Test.stopTest();
     }
 
 }

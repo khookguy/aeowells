@@ -289,7 +289,7 @@ private class CreateMemberInboundTest {
         insert cohort;
         Id cohortId = [SELECT Id FROM Account WHERE Name = :cohortName LIMIT 1].Id;
 
-        Program_Membership__c pm = CreateMemberInbound.createMember(
+        Program_Membership__c pm = CreateMemberInbound.findOrCreateMemberAndNotifyCohort(
             firstName, 
             lastName, 
             email, 
@@ -333,7 +333,7 @@ private class CreateMemberInboundTest {
         member.AccountId = memberBusiness.Id;
         insert member;
 
-        Program_Membership__c pm = CreateMemberInbound.createMember(
+        Program_Membership__c pm = CreateMemberInbound.findOrCreateMemberAndNotifyCohort(
             firstName, 
             lastName, 
             email, 
@@ -355,23 +355,23 @@ private class CreateMemberInboundTest {
 
     @IsTest
     static void testCreateMember_bad_arguments() {
-        Program_Membership__c member = CreateMemberInbound.createMember(null, null, null, null, null, null);
+        Program_Membership__c member = CreateMemberInbound.findOrCreateMemberAndNotifyCohort(null, null, null, null, null, null);
         System.assertEquals(null, member, 'Should return null.');
-        member = CreateMemberInbound.createMember('bad string', 'badder', 'worst', 'some', 'more', 'text');
+        member = CreateMemberInbound.findOrCreateMemberAndNotifyCohort('bad string', 'badder', 'worst', 'some', 'more', 'text');
         System.assertEquals(null, member, 'Should return null.');
     }
 
     @IsTest
     static void testCreateMember_invalid_ids() {
-        Program_Membership__c member = CreateMemberInbound.createMember(null, null, null, null, null, null);
+        Program_Membership__c member = CreateMemberInbound.findOrCreateMemberAndNotifyCohort(null, null, null, null, null, null);
         System.assertEquals(null, member, 'Should return null.');
-        member = CreateMemberInbound.createMember('bad string', 'badder', 'worst', 'some', 'more', 'text');
+        member = CreateMemberInbound.findOrCreateMemberAndNotifyCohort('bad string', 'badder', 'worst', 'some', 'more', 'text');
         System.assertEquals(null, member, 'Should return null.');
     }
 
     @IsTest
     static void testTempWithData() {
-        Program_Membership__c pmem = CreateMemberInbound.createMember(
+        Program_Membership__c pmem = CreateMemberInbound.findOrCreateMemberAndNotifyCohort(
             'Lene',
             'Tsegaye',
             'emnet98@verizon.net',
@@ -412,6 +412,56 @@ private class CreateMemberInboundTest {
         System.assertEquals(null, emailException, 'An exception was thrown during notification of cohort members.');
         System.debug('Number of emails sent: ' + Limits.getEmailInvocations());
         System.assert(Limits.getEmailInvocations() > 0, 'Emails should have been sent.');
+        Test.stopTest();
+    }
+
+    @isTest
+    /**
+     * @description Test the creation and notification flow. Notification should happen only first time, not
+     * on subsequent calls to creat the same membership.
+     * 
+     * NOTE: FOR THIS TEST TO PASS THE SANDBOX MUST HAVE EMAIL > DELIVERABILITY > ACCESS TO SEND EMAIL SET TO 'ALL EMAIL'
+     */
+    static void testFindOrCreateMemberAndNotifyCohort_happy_path() {
+        String firstName = 'Sam';
+        String lastName = TestDataFactory.createUniqueName('Last');
+        String email = firstName+'.'+lastName+'@test.com';
+        String businessName = TestDataFactory.createUniqueName('Business');
+        String programName = TestDataFactory.createUniqueName('Program');
+        Program__c program = TestDataFactory.createProgram(programName, 'A very good program');
+        String cohortName = TestDataFactory.createUniqueName('Cohort');
+        Account cohort = new Account(Name=cohortName);
+        insert cohort;
+        Id cohortId = [SELECT Id FROM Account WHERE Name = :cohortName LIMIT 1].Id;
+
+        Test.startTest();
+        System.assertEquals(0, Limits.getEmailInvocations(), 'No emails should have been sent.');
+        EmailException emailException = null;
+        Program_Membership__c membership = null;
+        try {
+            membership = CreateMemberInbound.findOrCreateMemberAndNotifyCohort(firstName, lastName, email, businessName, program.Id, cohortId);    
+        } catch (EmailException e) {
+            emailException = e;
+            System.debug('Error notifying Cohort Members: ' + e.getMessage());
+        }        
+        System.assertEquals(null, emailException, 'An exception was thrown during membership creation.');
+        Integer numberOfEmailsSent = Limits.getEmailInvocations();
+        System.debug('Number of emails sent: ' + Limits.getEmailInvocations());
+        System.assert(numberOfEmailsSent > 0, 'Emails should have been sent.');
+        System.assertNotEquals(null, membership, 'Membership should have been created.');
+        // run again with same parameters
+        emailException = null;
+        membership = null;
+        try {
+            membership = CreateMemberInbound.findOrCreateMemberAndNotifyCohort(firstName, lastName, email, businessName, program.Id, cohortId);    
+        } catch (EmailException e) {
+            emailException = e;
+        }        
+        System.assertEquals(null, emailException, 'An exception was thrown during membership creation.');
+        Integer numberOfEmailsSentAfter2ndTry = Limits.getEmailInvocations();
+        System.debug('Number of emails sent after 2nd try: ' + Limits.getEmailInvocations());
+        System.assertEquals(numberOfEmailsSent, numberOfEmailsSentAfter2ndTry, 'Emails should not have been sent on the 2nd try.');
+        System.assertNotEquals(null, membership, 'Membership should have been found.');
         Test.stopTest();
     }
 

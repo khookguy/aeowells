@@ -7,9 +7,12 @@ public with sharing class Resili {
     if (email == null) {
       throw new IllegalArgumentException('Email cannot be null');
     }
+    String urlEncodedEmail = EncodingUtil.urlEncode(email, 'UTF-8');
+    System.debug('Calling Resisli activation for email (urlencoded): ' + urlEncodedEmail);
+    System.debug('with payload: ' + bhaPayload);
     Http h = new Http();
     HttpRequest req = new HttpRequest();
-    req.setEndpoint(RESILI_ACTIVATION_ENDPOINT + '?email=' + email);
+    req.setEndpoint(RESILI_ACTIVATION_ENDPOINT + '?email=' + urlEncodedEmail);
     req.setMethod('PUT');
     req.setHeader('Content-Type', 'application/json');
     req.setHeader('Authorization', 'Bearer ' + RESILI_ACCESS_TOKEN);

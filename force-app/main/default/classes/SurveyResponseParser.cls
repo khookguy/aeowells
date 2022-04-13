@@ -1,5 +1,8 @@
 public class SurveyResponseParser {
   public static String generateBHAPayload(String fullSurveyResponse) {
+    if (fullSurveyResponse == null) {
+      return null;
+    }
     Map<String, Object> fsr = (Map<String, Object>) JSON.deserializeUntyped(
       fullSurveyResponse
     );

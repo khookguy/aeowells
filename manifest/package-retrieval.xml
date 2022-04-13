@@ -33,6 +33,12 @@
         <members>SurveyFullResponse_WellsFargo</members>
         <name>StaticResource</name>
     </types>
+    <types>
+        <members>Resili</members>
+        <members>Resili_Staging</members>
+        <members>Qualtrics_API_for_AEO</members>
+        <name>RemoteSiteSetting</name>
+    </types>
    <!--
     <types>
         <members>GettingStarted</members>

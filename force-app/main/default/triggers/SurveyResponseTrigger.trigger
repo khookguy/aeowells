@@ -2,12 +2,12 @@ trigger SurveyResponseTrigger on qualtrics__Survey_Response__c(after insert) {
   for (qualtrics__Survey_Response__c sr : Trigger.new) {
     String surveyId = sr.qualtrics__Q_SurveyID__c;
     String responseId = sr.Response_ID__c;
-    SurveyResponseTriggerHandler.getFullSurveyResponse(
+    SurveyResponseTriggerHandler.getFullSurveyResponseFromQualtricsAndActivateResili(
       sr.Id,
-      surveyId,
-      responseId
+      sr.qualtrics__Q_SurveyID__c,
+      sr.Response_ID__c,
+      sr.Email__c
     );
-    SurveyResponseTriggerHandler.activateResili(sr.Id, sr.Email__c);
   }
 
 }

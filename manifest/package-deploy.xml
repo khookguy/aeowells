@@ -5,11 +5,22 @@
         <members>CreateMemberInboundTest</members>
         <members>SurveyResponseParser</members>
         <members>SurveyResponseParser_Test</members>
+        <members>SurveyResponseTriggerHandler</members>
         <name>ApexClass</name>
+    </types>
+    <types>
+        <members>SurveyResponseTrigger</members>
+        <name>ApexTrigger</name>
     </types>
     <types>
         <members>SurveyFullResponse_WellsFargo</members>
         <name>StaticResource</name>
+    </types>
+    <types>
+        <members>Resili</members>
+        <members>Resili_Staging</members>
+        <members>Qualtrics_API_for_AEO</members>
+        <name>RemoteSiteSetting</name>
     </types>
     <version>54.0</version>
 </Package>

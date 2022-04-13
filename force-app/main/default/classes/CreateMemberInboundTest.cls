@@ -404,7 +404,13 @@ private class CreateMemberInboundTest {
         System.assertEquals(0, Limits.getEmailInvocations(), 'No emails should have been sent.');
         EmailException emailException = null;
         try {
-            CreateMemberInbound.notifyCohortMembers(firstName, lastName, email, businessName, program.Id, cohortId);    
+            Contact con = new Contact();
+            con.FirstName = firstName;
+            con.LastName = lastName;
+            con.Email = email;
+            String contactId = CreateMemberInbound.insertContact(con, businessName);
+            Program_Membership__c pm = CreateMemberInbound.getOrCreateProgramMember(contactId, program.Id, cohortId);
+            CreateMemberInbound.notifyCohortMembers(pm);    
         } catch (EmailException e) {
             emailException = e;
             System.debug('Error notifying Cohort Members: ' + e.getMessage());

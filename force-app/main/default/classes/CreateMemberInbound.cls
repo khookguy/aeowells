@@ -473,17 +473,18 @@ global class CreateMemberInbound {
           String contactId = insertContact(con, businessName);
           system.debug('==> shoot without duplicateContact ');
           system.debug('==> contactId ' + contactId);
-          //get program membership id
-          programMembership = getOrCreateProgramMember(
-            contactId,
-            programId,
-            cohortId
-          );
+          if (contactId != null && programId != null && cohortId != null) {
+            programMembership = getOrCreateProgramMember(
+              contactId,
+              programId,
+              cohortId
+            );
+            // since the membership is newly created, notify the cohort
+            notifyCohortMembers(
+              programMembership
+            );
+          }
         }
-        // since the membership is newly created, notify the cohort
-        notifyCohortMembers(
-          programMembership
-        );
       } else {
         programMembership = existingProgramMembership;
       }

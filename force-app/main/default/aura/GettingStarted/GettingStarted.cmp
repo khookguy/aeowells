@@ -1,0 +1,175 @@
+<aura:component
+  implements="lightning:isUrlAddressable,force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction"
+  access="global"
+  controller="GettingStartedController"
+>
+  <link
+    href="//fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,700italic,400,600,700"
+    rel="stylesheet"
+    type="text/css"
+  />
+  <aura:attribute name="zoom" type="String" />
+  <aura:attribute name="calendly" type="String" />
+  <aura:attribute name="programName" type="String" default="Wells Fargo" />
+  <aura:attribute name="programId" type="String" default="a0R1K00000B5EX0UAN" />
+  <aura:attribute name="userId" type="String" />
+  <aura:attribute name="cohortId" type="String" />
+  <aura:attribute name="aeo_state" type="String" />
+  <aura:handler name="init" action="{!c.getUserAndCohort}" value="{!this}"/>
+
+  <aura:html tag="style">
+    a:hover { color: #00bfff; } li { margin-bottom: 11px; text-decoration:
+    underline; } #div { display: block; padding: 16px 24px 14px; margin-bottom:
+    1px; font-size: 14px; font-family: Montserrat, sans-serif; background-color:
+    #f2f2f2; } #div:hover { background-color: #005baa; color: white; } #div
+    a:hover { background-color: #005baa; color: white; } .hoverTable a {
+    display: block; color: black; width: 100%; height: 100%; text-decoration:
+    none; } h1 { font-size: 30px; } h2 { font-size: 24px; margin-bottom: 10px
+    !important; } h3 { font-size: 30px; }
+  </aura:html>
+  <div class="slds-p-around_xx-small">
+    <div class="slds-grid slds-wrap slds-gutters">
+      <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-3">
+        <h1>GETTING STARTED</h1>
+        <hr style="height: 3px" />
+        <br />
+        <img
+          src="{!$Resource.GettingStarted}"
+          style="width: 100%; height: auto"
+          alt=""
+        /><br /><br />
+        <h2>GETTING STARTED</h2>
+        <div
+          style="
+            font-size: 16px;
+            font-family: 'Open Sans', sans-serif;
+            color: #222;
+          "
+        >
+          First, review these documents to familiarize yourself with the
+          recommended process flow, survey overview, and recommendations from
+          previous users.<br />
+          <ul
+            style="color: #005baa; list-style-type: square"
+            class="slds-p-around_large"
+          >
+            <li>
+              <a
+                target="_blank"
+                href="/resource/Small_Business_Resiliency_Program_Toolkit_final"
+                >Small Business Resiliency Program Toolkit</a
+              >
+            </li>
+            <li>
+              <a
+                target="_blank"
+                href="/resource/Coaching_Clinic_Preparation_Process_Flow"
+                >Coaching Clinic Preparation Process Flow</a
+              >
+            </li>
+            <li>
+              <a target="_blank" href="/resource/Survey_and_Snapshot_Mapping"
+                >Survey and Snapshot Mapping</a
+              >
+            </li>
+            <li>
+              <a
+                target="_blank"
+                href="/resource/Small_and_Midsize_Business_Life_Cycle"
+                >Small and Midsized Business Life Cycle</a
+              >
+            </li>
+            <li>
+              <a target="_blank" href="/resource/Lessons_Learned"
+                >Lessons Learned</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div style="font-size: 22px; font-family: montserrat">
+          RESILI Signup Link
+        </div>
+        <!-- <a onclick="{!c.handleReferralLink}" style="text-decoration: underline">Referral Link</a> -->
+        <div
+          style="
+            font-size: 16px;
+            font-family: 'Open Sans', sans-serif;
+            color: #222;
+          "
+        >
+          <a
+            href="{! 'https://resili.aeoworks.org/business-health-assessment/?aeo_state='+v.aeo_state }"
+            >{! 'https://resili.aeoworks.org/business-health-assessment/?aeo_state='+v.aeo_state }</a
+          >
+        </div>
+        <!--<div Style="Font-size:22px;font-family: montserrat;letter-spacing: 1.2px;">Calendly Login Information<a href="javscript:void(0)" onclick="{!c.canIdPass}" style="text-decoration: underline">[show/Hide]</a></div>
+                <aura:if isTrue="{!v.calendly == 'True'}">
+                    <div Style="Font-size:16px">
+                        Username:<br/>
+                        Password:<br/>
+                        <br/><br/></div></aura:if>
+                <div Style="Font-size:16px">Please be sure to <a target="_blank" href="https://calendly.com/blog/connect-multiple-calendars/#:~:text=How%20to%20connect%20multiple%20calendars,in%20just%20a%20few%20clicks!" style="text-decoration: underline">connect your calendars</a> to Calendly to ensure tdat your availability is up to date. You can even connect multiple calendars to Calendly to reflect combined availability.
+                </div>
+                <br/><br/>
+                <div Style="Font-size:22px;font-family: montserrat;letter-spacing: 1.2px;">Zoom Login Information<a href="javscript:void(0)" onclick="{!c.zoomIdPass}" style="text-decoration: underline">[show/Hide]</a></div>
+                <aura:if isTrue="{!v.zoom == 'True'}">
+                    <div Style="Font-size:16px">
+                        Username:<br/>
+                        Password:<br/>
+                        <br/><br/></div></aura:if>
+                <div Style="Font-size:22px;font-family: montserrat;letter-spacing: 1.2px;">Recruiting Small Businesses</div>
+                <div Style="Font-size:16px">To recruit small business owners to tde program, please download tde <a target="_blank" href="{!$Resource.Csv_File}" style="text-decoration: underline">CSV template</a>, add tde first name, last name, and email address of each small business owner, and upload it using tde form below.
+                </div><br/><br/>
+                <ul style="margin-left:2%;list-style-type:square;font-family: open sans;text-decoration: underline;color: #005baa;">
+                    <li><a target="_blank" href="https://www.tfaforms.com/4924458?tfa_1897=&amp;tfa_1896=&amp;tfa_1900=a0R1K00000B44iJUAR" Style="Font-size:16px">CSV Upload Form</a></li>
+                </ul><br/><br/>-->
+      </div>
+      <div
+        class="slds-col slds-size_1-of-1 slds-show_large slds-large-size_1-of-3"
+      >
+        <img src="{!$Resource.Open}" alt="" />
+        <div class="slds-p-around_medium" style="background-color: #00bfff">
+          <b>
+            <div
+              class="slds-p-vertical_x-small"
+              style="font-size: 22px; color: white"
+            >
+              RESILI™
+            </div>
+            <div style="font-size: 16px; color: white; margin-bottom: 6px">
+              Welcome Provider Cohorts
+            </div>
+          </b>
+        </div>
+        <br /><br />
+
+        <div style="font-size: 24px"><b>RECENT POSTS</b></div>
+        <br /><br />
+        <div class="hoverTable">
+          <div id="div" style="background-color: #005baa">
+            <a href="/s/getting-started" style="color: white"
+              >Getting Started</a
+            >
+          </div>
+          <div id="div"><a href="/s/coaching-clinic">Coaching Clinic</a></div>
+          <div id="div">
+            <a href="/s/follow-up-process">Follow Up Process</a>
+          </div>
+          <div id="div">
+            <a href="/s/industry-analysis">Industry Analysis Best Practices</a>
+          </div>
+          <div id="div">
+            <a href="/s/financial-analysis"
+              >Financial Analysis Best Practices</a
+            >
+          </div>
+          <div id="div"><a href="/s/cohort">Cohort Program Resources</a></div>
+          <div id="div"><a href="/s/resili">RESILI™</a></div>
+        </div>
+        <br />
+        <hr style="background-color: #005baa; height: 3px" />
+        <br />
+      </div>
+    </div>
+  </div>
+</aura:component>

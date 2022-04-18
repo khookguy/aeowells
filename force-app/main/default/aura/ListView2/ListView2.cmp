@@ -1,0 +1,75 @@
+<aura:component implements="lightning:isUrlAddressable,force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction,flexipage:availableForRecordHome"
+                access="global" controller="ListViewController">
+    
+    <aura:attribute name="data" type="Object"/>
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="pageNumber" type="Integer" default="1"/>
+    <aura:attribute name="pageSize" type="Integer" default="10"/>
+    <aura:attribute name="programName" type="String" default="Wells Fargo"/>
+    <aura:attribute name="programId" type="String" default="a0R1K00000B5EX0UAN"/>
+    <aura:attribute name="isLastPage" type="Boolean" default="false"/>
+    <aura:attribute name="dataSize" type="Integer" default="0"/> 
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+    <aura:attribute name="modalMessage" type="String" default="Are you sure you want to update status to Coaching Completed?"/>
+    <aura:attribute name="showModal" type="Boolean" default="false"/>
+    <aura:attribute name="isDone" type="Boolean" default="false"/>
+    <aura:attribute name="recordId" type="String"/>
+    
+    <div class="slds-p-around_xx-small">
+        <div class="slds-grid slds-wrap">
+            <div class="slds-col slds-size_3-of-4" style="padding-right: var(--lwc-spacingSmall,0.75rem);
+    padding-left: var(--lwc-spacingSmall,0.75rem);">
+                <span>
+                    <div id="div" style="background-color: #005BAA;Font-size:22px;color:white">ENTREPRENEURS</div>
+                    <lightning:datatable aura:id = "accDT"
+                                         columns = "{!v.columns}"
+                                         maxRowSelection="{!v.maxRowSelection}"
+                                         data = "{!v.data}"
+                                         keyField = "Id"
+                                         selectedRows = "{!v.selectedRowList}"
+                                         onrowaction="{!c.handleRowAction}"
+                                         hideCheckboxColumn = "true" />
+                </span>
+            </div>
+            <div class="slds-col slds-size_1-of-4">
+                <span><c:pageMenu/></span>
+            </div>
+            <div class="slds-col slds-size_3-of-4">
+                <span><div class="slds-clearfix">
+                    <div class="slds-page-header" role="banner">
+                        <div class="slds-float_right">            
+                            <lightning:button label="Prev" iconName="utility:chevronleft" iconPosition="left"
+                                              onclick="{!c.handlePrev}" disabled="{! v.pageNumber == 1}"/>
+                            <lightning:button label="Next" iconName="utility:chevronright" iconPosition="right"
+                                              disabled="{!v.isLastPage}" onclick="{!c.handleNext}"/>
+                        </div>
+                        <p class="">Page {!v.pageNumber} | Showing records from {! ((v.pageNumber-1)*v.pageSize)+' to '+((v.pageNumber-1)*v.pageSize+v.dataSize)}</p>
+                    </div>
+                    </div></span>
+            </div>
+        </div>
+    </div>
+    
+    <aura:if isTrue="{!v.showModal}">
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Update Record?</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <center><p>{!v.modalMessage} <aura:if isTrue="{!v.isDone}"><lightning:icon iconName="action:approval" alternativeText="Approved" title="Approved" size="xx-small"/></aura:if></p></center>
+                </div>
+                <footer class="slds-modal__footer">
+                    <aura:if isTrue="{!v.isDone}">
+                        <lightning:button variant="brand" label="Okay" onclick="{!c.handleClick }" />
+                        <aura:set attribute="else">
+                            <lightning:button variant="brand-outline" label="Cancel" onclick="{!c.handleClick }" />
+                            <lightning:button variant="brand" label="Yes" onclick="{!c.handleClick }" />
+                        </aura:set>
+                    </aura:if>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+</aura:component>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StandardValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <sorted>false</sorted>
+    <standardValue>
+        <fullName>Non-profit</fullName>
+        <default>false</default>
+        <label>Non-profit</label>
+    </standardValue>
+    <standardValue>
+        <fullName>For profit</fullName>
+        <default>false</default>
+        <label>For profit</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Publicly traded</fullName>
+        <default>false</default>
+        <label>Publicly traded</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Privately held / Venture backed</fullName>
+        <default>false</default>
+        <label>Privately held / Venture backed</label>
+    </standardValue>
+    <standardValue>
+        <fullName>B-Corp</fullName>
+        <default>false</default>
+        <label>B-Corp</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Government</fullName>
+        <default>false</default>
+        <label>Government</label>
+    </standardValue>
+</StandardValueSet>

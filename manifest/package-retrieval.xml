@@ -43,7 +43,6 @@
         <members>unfiled$public/Cohort_Notification_RESILI_ACTIVATION_1649689133377</members>
         <name>EmailTemplate</name>
     </types>
-   <!--
     <types>
         <members>GettingStarted</members>
         <members>ListView2</members>
@@ -67,6 +66,7 @@
         <members>Account.AEO_Compact_Layout</members>
         <name>CompactLayout</name>
     </types>
+<!--
     <types>
         <members>*</members>
         <name>ApexComponent</name>

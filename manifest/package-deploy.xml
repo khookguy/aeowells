@@ -13,6 +13,10 @@
         <name>ApexTrigger</name>
     </types>
     <types>
+        <members>unfiled$public/Cohort_Notification_RESILI_ACTIVATION_1649689133377</members>
+        <name>EmailTemplate</name>
+    </types>
+    <types>
         <members>SurveyFullResponse_WellsFargo</members>
         <name>StaticResource</name>
     </types>

@@ -39,6 +39,10 @@
         <members>Qualtrics_API_for_AEO</members>
         <name>RemoteSiteSetting</name>
     </types>
+    <types>
+        <members>unfiled$public/Cohort_Notification_RESILI_ACTIVATION_1649689133377</members>
+        <name>EmailTemplate</name>
+    </types>
    <!--
     <types>
         <members>GettingStarted</members>

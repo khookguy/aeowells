@@ -1,6 +1,6 @@
 public with sharing class Resili {
   private static String RESILI_ACCESS_TOKEN = 'WcgqsbWHYxzIieMhxtoULRsJmaqhQplh';
-  private static String RESILI_ACTIVATION_ENDPOINT = 'https://resilistaging.aeoworks.org/wp-json/aeo/v1/users/activate';
+  private static String RESILI_ACTIVATION_ENDPOINT = 'https://resili.aeoworks.org/wp-json/aeo/v1/users/activate';
 
   public static void activate(String email, String bhaPayload) {
     System.debug('Entered: activate');

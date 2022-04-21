@@ -11,7 +11,7 @@
         <members>ResiliMock</members>
         <members>Resili_Test</members>
         <members>QualtricsSurvey</members>
-        <members>QualtricsSurveyMock</members>
+        <members>QualtricsMock</members>
         <members>QualtricsSurvey_Test</members>
         <members>TestDataFactory</members>
         <name>ApexClass</name>

@@ -1,30 +1,58 @@
 @isTest
 private class SurveyResponseTrigger_Test {
   @isTest
-  static void surveyTrigger_pass_test() {
+  static void surveyTrigger_bha_wells_pass_test() {
     Test.setMock(
       HttpCalloutMock.class,
       new QualtricsMock.GetSurveyResponseMockPass()
     );
     qualtrics__Survey_Response__c surveyResponse = new qualtrics__Survey_Response__c();
     surveyResponse.Response_ID__c = 'R_264EqlGMmYU3s6R';
-    surveyResponse.qualtrics__Q_SurveyID__c = 'SV_80xQ0CkJkWw6zHw';
+    surveyResponse.qualtrics__Q_SurveyID__c = SurveyResponseTriggerHandler.BHA_SURVEY_ID_WELLS;
     surveyResponse.Email__c = 'test@testing.com';
-    Contact contact = new Contact(FirstName='Tester', LastName='Testing', Email='test@testing.com');
-    Account cohort = new Account(Name='Test Cohort');
-    Program__c program = new Program__c(Name='Test Program', BHA_Survey_ID__c='SV_80xQ0CkJkWw6zHw');
+    Contact contact = new Contact(
+      FirstName = 'Tester',
+      LastName = 'Testing',
+      Email = 'test@testing.com'
+    );
+    Account cohort = new Account(Name = 'Test Cohort');
+    Program__c program = new Program__c(
+      Name = 'Test Program',
+      BHA_Survey_ID__c = SurveyResponseTriggerHandler.BHA_SURVEY_ID_WELLS,
+      Post_Coaching_Survey_ID__c = SurveyResponseTriggerHandler.POST_COACHING_SURVEY_ID_WELLS
+    );
     insert contact;
     insert cohort;
     insert program;
-    Contact persistedContact = [SELECT Id FROM Contact WHERE Email = :contact.Email LIMIT 1];
-    Account persistedCohort = [SELECT Id FROM Account WHERE Name = :cohort.Name LIMIT 1];
-    Program__c persistedProgram = [SELECT Id FROM Program__c WHERE Name = :program.Name LIMIT 1];
+    Contact persistedContact = [
+      SELECT Id
+      FROM Contact
+      WHERE Email = :contact.Email
+      LIMIT 1
+    ];
+    Account persistedCohort = [
+      SELECT Id
+      FROM Account
+      WHERE Name = :cohort.Name
+      LIMIT 1
+    ];
+    Program__c persistedProgram = [
+      SELECT Id
+      FROM Program__c
+      WHERE Name = :program.Name
+      LIMIT 1
+    ];
     Program_Membership__c prgMembership = new Program_Membership__c();
     prgMembership.Individual__c = persistedContact.Id;
     prgMembership.Cohort__c = persistedCohort.Id;
     prgMembership.Program__c = persistedProgram.Id;
     insert prgMembership;
-    Contact cohortMember = new Contact(FirstName='Memby', LastName='Ofcohort', Email='memby@cohorticus.com', AccountId=persistedCohort.Id);
+    Contact cohortMember = new Contact(
+      FirstName = 'Memby',
+      LastName = 'Ofcohort',
+      Email = 'memby@cohorticus.com',
+      AccountId = persistedCohort.Id
+    );
     insert cohortMember;
 
     Test.startTest();
@@ -39,7 +67,7 @@ private class SurveyResponseTrigger_Test {
       FROM qualtrics__Survey_Response__c
       WHERE
         Response_ID__c = 'R_264EqlGMmYU3s6R'
-        AND qualtrics__Q_SurveyID__c = 'SV_80xQ0CkJkWw6zHw'
+        AND qualtrics__Q_SurveyID__c = :SurveyResponseTriggerHandler.BHA_SURVEY_ID_WELLS
       LIMIT 1
     ];
     System.assertNotEquals(null, sr, 'Survey Response object was not found');
@@ -71,23 +99,42 @@ private class SurveyResponseTrigger_Test {
       aeo_user_id,
       'AEO User Id does not match embedded data from test object'
     );
-    Program_Membership__c programMembership = SurveyResponseTriggerHandler.getProgramMembership(surveyResponse.qualtrics__Q_SurveyID__c, surveyResponse.Email__c);
-    System.assertNotEquals(null, programMembership.BHA_Survey_Response_ID__c, 'Survey response ID was not added to program membership object instance');
-    System.assertEquals(surveyResponse.Response_ID__c, programMembership.BHA_Survey_Response_ID__c, 'Wrong survey response ID added to program membership object instance');
-    System.assertNotEquals(null, programMembership.BHA_Survey_ID__c, 'Survey ID was not added to program membership object instance');
-    System.assertEquals(surveyResponse.qualtrics__Q_SurveyID__c, programMembership.BHA_Survey_ID__c, 'Wrong survey ID added to program membership object instance');
-
+    Program_Membership__c programMembership = SurveyResponseTriggerHandler.getProgramMembershipFromSurveyResponse(
+      surveyResponse.qualtrics__Q_SurveyID__c,
+      surveyResponse.Email__c,
+      SurveyResponseTriggerHandler.SURVEY_TYPE_BHA
+    );
+    System.assertNotEquals(
+      null,
+      programMembership.BHA_Survey_Response_ID__c,
+      'BHA survey response ID was not added to program membership object instance'
+    );
+    System.assertEquals(
+      surveyResponse.Response_ID__c,
+      programMembership.BHA_Survey_Response_ID__c,
+      'Wrong BHA survey response ID added to program membership object instance'
+    );
+    System.assertNotEquals(
+      null,
+      programMembership.BHA_Survey_ID__c,
+      'BHA survey ID was not added to program membership object instance'
+    );
+    System.assertEquals(
+      surveyResponse.qualtrics__Q_SurveyID__c,
+      programMembership.BHA_Survey_ID__c,
+      'Wrong BHA survey ID added to program membership object instance'
+    );
   }
 
   @isTest
-  static void getSurveyResponse_fail_test() {
+  static void getSurveyResponse_bha_wells_fail_test() {
     Test.setMock(
       HttpCalloutMock.class,
       new QualtricsMock.GetSurveyResponseMockFail()
     );
     qualtrics__Survey_Response__c surveyResponse = new qualtrics__Survey_Response__c();
     surveyResponse.Response_ID__c = 'R_264EqlGMmYU3s6R';
-    surveyResponse.qualtrics__Q_SurveyID__c = 'SV_80xQ0CkJkWw6zHw';
+    surveyResponse.qualtrics__Q_SurveyID__c = SurveyResponseTriggerHandler.BHA_SURVEY_ID_WELLS;
     CalloutException ce = null;
     try {
       Test.startTest();
@@ -105,7 +152,7 @@ private class SurveyResponseTrigger_Test {
       FROM qualtrics__Survey_Response__c
       WHERE
         Response_ID__c = 'R_264EqlGMmYU3s6R'
-        AND qualtrics__Q_SurveyID__c = 'SV_80xQ0CkJkWw6zHw'
+        AND qualtrics__Q_SurveyID__c = :SurveyResponseTriggerHandler.BHA_SURVEY_ID_WELLS
       LIMIT 1
     ];
     System.assertNotEquals(null, sr, 'Survey Response object was not found');
@@ -115,5 +162,99 @@ private class SurveyResponseTrigger_Test {
       'Full survey response (JSON) should not been added to the record'
     );
     System.assertNotEquals(null, ce, 'Exception should have been thrown.');
+  }
+
+  @isTest
+  static void surveyTrigger_post_coaching_wells_pass_test() {
+    Test.setMock(
+      HttpCalloutMock.class,
+      new QualtricsMock.GetSurveyResponseMockPass()
+    );
+    qualtrics__Survey_Response__c surveyResponse = new qualtrics__Survey_Response__c();
+    surveyResponse.Response_ID__c = 'R_264EqlGMmYU3s6R';
+    surveyResponse.qualtrics__Q_SurveyID__c = SurveyResponseTriggerHandler.POST_COACHING_SURVEY_ID_WELLS;
+    surveyResponse.Email__c = 'test@testing.com';
+    Contact contact = new Contact(
+      FirstName = 'Tester',
+      LastName = 'Testing',
+      Email = 'test@testing.com'
+    );
+    Account cohort = new Account(Name = 'Test Cohort');
+    Program__c program = new Program__c(
+      Name = 'Test Program',
+      BHA_Survey_ID__c = SurveyResponseTriggerHandler.BHA_SURVEY_ID_WELLS,
+      Post_Coaching_Survey_ID__c = SurveyResponseTriggerHandler.POST_COACHING_SURVEY_ID_WELLS
+    );
+    insert contact;
+    insert cohort;
+    insert program;
+    Contact persistedContact = [
+      SELECT Id
+      FROM Contact
+      WHERE Email = :contact.Email
+      LIMIT 1
+    ];
+    Account persistedCohort = [
+      SELECT Id
+      FROM Account
+      WHERE Name = :cohort.Name
+      LIMIT 1
+    ];
+    Program__c persistedProgram = [
+      SELECT Id
+      FROM Program__c
+      WHERE Name = :program.Name
+      LIMIT 1
+    ];
+    Program_Membership__c prgMembership = new Program_Membership__c();
+    prgMembership.Individual__c = persistedContact.Id;
+    prgMembership.Cohort__c = persistedCohort.Id;
+    prgMembership.Program__c = persistedProgram.Id;
+    insert prgMembership;
+    Contact cohortMember = new Contact(
+      FirstName = 'Memby',
+      LastName = 'Ofcohort',
+      Email = 'memby@cohorticus.com',
+      AccountId = persistedCohort.Id
+    );
+    insert cohortMember;
+
+    Test.startTest();
+    insert surveyResponse;
+    Test.stopTest();
+    qualtrics__Survey_Response__c sr = [
+      SELECT Id, Response_ID__c, qualtrics__Q_SurveyID__c
+      FROM qualtrics__Survey_Response__c
+      WHERE
+        Response_ID__c = 'R_264EqlGMmYU3s6R'
+        AND qualtrics__Q_SurveyID__c = :SurveyResponseTriggerHandler.POST_COACHING_SURVEY_ID_WELLS
+      LIMIT 1
+    ];
+    System.assertNotEquals(null, sr, 'Survey Response object was not found');
+    Program_Membership__c programMembership = SurveyResponseTriggerHandler.getProgramMembershipFromSurveyResponse(
+      surveyResponse.qualtrics__Q_SurveyID__c,
+      surveyResponse.Email__c,
+      SurveyResponseTriggerHandler.SURVEY_TYPE_POST_COACHING
+    );
+    System.assertNotEquals(
+      null,
+      programMembership.Post_Coaching_Survey_Response_ID__c,
+      'Post-Coaching survey response ID was not added to program membership object instance'
+    );
+    System.assertEquals(
+      surveyResponse.Response_ID__c,
+      programMembership.Post_Coaching_Survey_Response_ID__c,
+      'Wrong post-coaching survey response ID added to program membership object instance'
+    );
+    System.assertNotEquals(
+      null,
+      programMembership.Post_Coaching_Survey_ID__c,
+      'Post-Coaching Survey ID was not added to program membership object instance'
+    );
+    System.assertEquals(
+      surveyResponse.qualtrics__Q_SurveyID__c,
+      programMembership.Post_Coaching_Survey_ID__c,
+      'Wrong post-coaching survey ID added to program membership object instance'
+    );
   }
 }

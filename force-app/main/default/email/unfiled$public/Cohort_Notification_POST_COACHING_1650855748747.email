@@ -1,0 +1,8 @@
+<html>
+<head>
+	<title></title>
+</head>
+<body style="height: auto; min-height: auto;">A Post-Coaching Survey has been completed by:&nbsp; {{{Program_Membership__c.Name__c}}} with email&nbsp;{{{Program_Membership__c.Member_Email__c}}} and business named {{{Program_Membership__c.Member_Business_Name__c}}}.&nbsp;<br />
+<br />
+They are members of the {{{Program_Membership__c.Program__c}}}&nbsp;program in cohort {{{Program_Membership__c.Cohort_Name__c}}}.
+</body></html>

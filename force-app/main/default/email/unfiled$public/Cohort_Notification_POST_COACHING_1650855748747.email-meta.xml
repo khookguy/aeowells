@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Notification that is sent to the Cohort managers whenever one of the entrepreneurs invited by the Cohort completes a post-coaching survey.</description>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>Cohort Notification - POST COACHING</name>
+    <relatedEntityType>Program_Membership__c</relatedEntityType>
+    <style>none</style>
+    <subject>Post-Coaching Survey Completed For:  {{{Program_Membership__c.Name__c}}}</subject>
+    <type>custom</type>
+    <uiType>SFX</uiType>
+</EmailTemplate>

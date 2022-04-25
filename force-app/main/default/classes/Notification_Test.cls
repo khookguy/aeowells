@@ -47,7 +47,25 @@ public with sharing class Notification_Test {
           cohortId
         );
         Notification.notifyCohortMembers(pm, Notification.NEW_RESILI_ACCOUNT_CREATED);
+        Integer newEmailInvocations = Limits.getEmailInvocations();
+        System.assert(
+          newEmailInvocations > 0,
+          'Emails should have been sent for NEW_RESILI_ACCOUNT_CREATED'
+        );
+        Integer oldnewEmailInvocations = newEmailInvocations;
         Notification.notifyCohortMembers(pm, Notification.BHA_COMPLETED);
+        newEmailInvocations = Limits.getEmailInvocations();
+        System.assert(
+          newEmailInvocations > oldnewEmailInvocations,
+          'Emails should have been sent for BHA_COMPLETED'
+        );
+        oldnewEmailInvocations = newEmailInvocations;
+        Notification.notifyCohortMembers(pm, Notification.POST_COACHING_COMPLETED);
+        newEmailInvocations = Limits.getEmailInvocations();
+        System.assert(
+          newEmailInvocations > oldnewEmailInvocations,
+          'Emails should have been sent for POST_COACHING_COMPLETED'
+        );
       } catch (EmailException e) {
         emailException = e;
         System.debug('Error notifying Cohort Members: ' + e.getMessage());
@@ -58,10 +76,6 @@ public with sharing class Notification_Test {
         'An exception was thrown during notification of cohort members.'
       );
       System.debug('Number of emails sent: ' + Limits.getEmailInvocations());
-      System.assert(
-        Limits.getEmailInvocations() > 0,
-        'Emails should have been sent.'
-      );
       Test.stopTest();
     }
 

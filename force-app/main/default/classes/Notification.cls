@@ -1,12 +1,14 @@
 public with sharing class Notification {
   public static String NEW_RESILI_ACCOUNT_CREATED = 'a new RESILI account has been created';
   public static String BHA_COMPLETED = 'the BHA survey has been completed';
+  public static String POST_COACHING_COMPLETED = 'the Post Coaching Survey has been completed';
   private static List<String> CC_EMAILS = new List<String>{
     'rkon@abcdandcompany.com',
     'mhansen@abcdandcompany.com'
   };
   private static String cohortNotificationEmailTemplateName_new_account = 'Cohort Notification - NEW ACCOUNT';
   private static String cohortNotificationEmailTemplateName_bha_complete = 'Cohort Notification - RESILI ACTIVATION';
+  private static String cohortNotificationEmailTemplateName_post_coaching_complete = 'Cohort Notification - POST COACHING';
 
   /**
    * Send an email to notify cohort members of a status change for a member of their cohort.
@@ -78,6 +80,13 @@ public with sharing class Notification {
         SELECT Id, Subject, HtmlValue
         FROM EmailTemplate
         WHERE Name = :cohortNotificationEmailTemplateName_bha_complete
+        LIMIT 1
+      ];
+    } else if (newStatus == POST_COACHING_COMPLETED) {
+      emailTemplate = [
+        SELECT Id, Subject, HtmlValue
+        FROM EmailTemplate
+        WHERE Name = :cohortNotificationEmailTemplateName_post_coaching_complete
         LIMIT 1
       ];
     }

@@ -10,6 +10,23 @@ private class SurveyResponseTrigger_Test {
     surveyResponse.Response_ID__c = 'R_264EqlGMmYU3s6R';
     surveyResponse.qualtrics__Q_SurveyID__c = 'SV_80xQ0CkJkWw6zHw';
     surveyResponse.Email__c = 'test@testing.com';
+    Contact contact = new Contact(FirstName='Tester', LastName='Testing', Email='test@testing.com');
+    Account cohort = new Account(Name='Test Cohort');
+    Program__c program = new Program__c(Name='Test Program', BHA_Survey_ID__c='SV_80xQ0CkJkWw6zHw');
+    insert contact;
+    insert cohort;
+    insert program;
+    Contact persistedContact = [SELECT Id FROM Contact WHERE Email = :contact.Email LIMIT 1];
+    Account persistedCohort = [SELECT Id FROM Account WHERE Name = :cohort.Name LIMIT 1];
+    Program__c persistedProgram = [SELECT Id FROM Program__c WHERE Name = :program.Name LIMIT 1];
+    Program_Membership__c prgMembership = new Program_Membership__c();
+    prgMembership.Individual__c = persistedContact.Id;
+    prgMembership.Cohort__c = persistedCohort.Id;
+    prgMembership.Program__c = persistedProgram.Id;
+    insert prgMembership;
+    Contact cohortMember = new Contact(FirstName='Memby', LastName='Ofcohort', Email='memby@cohorticus.com', AccountId=persistedCohort.Id);
+    insert cohortMember;
+
     Test.startTest();
     insert surveyResponse;
     Test.stopTest();
@@ -54,6 +71,12 @@ private class SurveyResponseTrigger_Test {
       aeo_user_id,
       'AEO User Id does not match embedded data from test object'
     );
+    Program_Membership__c programMembership = SurveyResponseTriggerHandler.getProgramMembership(surveyResponse.qualtrics__Q_SurveyID__c, surveyResponse.Email__c);
+    System.assertNotEquals(null, programMembership.BHA_Survey_Response_ID__c, 'Survey response ID was not added to program membership object instance');
+    System.assertEquals(surveyResponse.Response_ID__c, programMembership.BHA_Survey_Response_ID__c, 'Wrong survey response ID added to program membership object instance');
+    System.assertNotEquals(null, programMembership.BHA_Survey_ID__c, 'Survey ID was not added to program membership object instance');
+    System.assertEquals(surveyResponse.qualtrics__Q_SurveyID__c, programMembership.BHA_Survey_ID__c, 'Wrong survey ID added to program membership object instance');
+
   }
 
   @isTest

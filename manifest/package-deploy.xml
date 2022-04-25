@@ -14,6 +14,8 @@
         <members>QualtricsMock</members>
         <members>QualtricsSurvey_Test</members>
         <members>TestDataFactory</members>
+        <members>Notification</members>
+        <members>Notification_Test</members>
         <name>ApexClass</name>
     </types>
     <types>
@@ -22,6 +24,7 @@
     </types>
     <types>
         <members>unfiled$public/Cohort_Notification_RESILI_ACTIVATION_1649689133377</members>
+        <members>unfiled$public/Cohort_Notification_NEW_ACCOUNT_1650570539335</members>
         <name>EmailTemplate</name>
     </types>
     <types>

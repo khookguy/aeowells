@@ -6,7 +6,6 @@ global class CreateMemberInbound {
   private static Id smallBusinessRecTypeId = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName()
     .get('General_Organization')
     .getRecordTypeId();
-  private static String cohortNotificationEmailTemplateName = 'Cohort Notification - RESILI ACTIVATION';
 
   global class ResponseWrapper {
     global String status { get; set; }
@@ -275,14 +274,14 @@ global class CreateMemberInbound {
 
   /**
    * Look for program membership record using the contact Id, program Id, and cohort Id provided. If one
-   * exists, then return it. If none exists, then create one.  If no such contact or program
-   * can be found (from the Ids), return null
+   * exists, then return it. If none exists, then create one with the status "RESILI Account Created".  
+   * If no such contact or program can be found (from the Ids), return null
    * @param  contactId the contact Id
    * @param  programId the program Id
    * @param  cohortId The cohort Id of the program member (Cohort__c)
    * @return           the program membership or null
    */
-  public static Program_Membership__c getOrCreateProgramMember(
+  public static Program_Membership__c getOrCreateProgramMemberForNewResiliAccount(
     String contactId,
     String programId,
     String cohortId
@@ -292,7 +291,7 @@ global class CreateMemberInbound {
     system.debug('==> programId = ' + programId);
     system.debug('==> cohortId = ' + cohortId);
 
-    Program_Membership__c response = null;
+    Program_Membership__c programMembershipResponse = null;
     String progDescriptionForLog = '';
     String progStatusForLog = '';
     List<Contact> existing_contactList = [
@@ -323,7 +322,8 @@ global class CreateMemberInbound {
       existing_programList.isEmpty() ||
       existing_contactList.isEmpty()
     ) {
-      return response;
+      // One of the necessary objects is missing. We cannot create a membership object instance.
+      return null;
     }
     Contact existing_contact = existing_contactList[0];
     system.debug('==> existing_contact ' + existing_contact);
@@ -345,26 +345,26 @@ global class CreateMemberInbound {
       system.debug('==> progMembership ' + progMembership);
       if (progMembership != null) {
         //found existing program membership
-        response = progMembership;
+        programMembershipResponse = progMembership;
         progDescriptionForLog = 'Program Member Already Exists';
         progStatusForLog = 'Duplicate';
       } else {
         //create new program membership record
-        response = new Program_Membership__c();
-        response.Individual__c = contactId;
-        response.Program__c = programId;
-        response.Cohort__c = cohortId;
-        response.Program_Members__c = cohortId;
-        response.Member_Status__c = 'Contact signed up';
-        insert response;
+        programMembershipResponse = new Program_Membership__c();
+        programMembershipResponse.Individual__c = contactId;
+        programMembershipResponse.Program__c = programId;
+        programMembershipResponse.Cohort__c = cohortId;
+        programMembershipResponse.Program_Members__c = cohortId;
+        programMembershipResponse.Member_Status__c = 'RESILI Account Created';
+        insert programMembershipResponse;
         progDescriptionForLog = 'Program Member Created Successfully';
         progStatusForLog = 'Success';
       }
       //create prog log record
       createProgLog(progDescriptionForLog, progStatusForLog, programId);
     }
-    system.debug('==> getProgramMember response ' + response);
-    return response;
+    system.debug('==> getProgramMember response ' + programMembershipResponse);
+    return programMembershipResponse;
   }
 
   /**
@@ -462,7 +462,7 @@ global class CreateMemberInbound {
         system.debug('==> duplicateContact ' + duplicateContact);
         if (duplicateContact != null) {
           //found existing contact
-          programMembership = getOrCreateProgramMember(
+          programMembership = getOrCreateProgramMemberForNewResiliAccount(
             duplicateContact.Id,
             programId,
             cohortId
@@ -471,17 +471,17 @@ global class CreateMemberInbound {
           //no existing contact
           //create new contact record
           String contactId = insertContact(con, businessName);
-          system.debug('==> shoot without duplicateContact ');
+          system.debug('==> created new contact ');
           system.debug('==> contactId ' + contactId);
           if (contactId != null && programId != null && cohortId != null) {
-            programMembership = getOrCreateProgramMember(
+            programMembership = getOrCreateProgramMemberForNewResiliAccount(
               contactId,
               programId,
               cohortId
             );
             // since the membership is newly created, notify the cohort
-            notifyCohortMembers(
-              programMembership
+            Notification.notifyCohortMembers(
+              programMembership, Notification.NEW_RESILI_ACCOUNT_CREATED
             );
           }
         }
@@ -497,82 +497,4 @@ global class CreateMemberInbound {
     return programMembership;
   }
 
-  /**
-   * Send an email to notify cohort members of a newly activated RESILI account for a new member of
-   * their cohort.
-   * @param  programMembership the program membership object for the new cohort member
-   */
-  public static void notifyCohortMembers(
-    Program_Membership__c programMembership
-  ) {
-    Id programId = programMembership.Program__c;
-    Id cohortId = programMembership.Cohort__c;
-    Id contactId = programMembership.Individual__c;
-
-    String programName = [
-      SELECT Name
-      FROM Program__c
-      WHERE Id = :programId
-      LIMIT 1
-    ]
-    .Name;
-    String cohortName = [SELECT Name FROM Account WHERE Id = :cohortId LIMIT 1]
-    .Name;
-    // get the organization wide email address
-    List<OrgWideEmailAddress> orgEmail = [
-      SELECT Id, Address, DisplayName, Purpose, IsAllowAllProfiles
-      FROM OrgWideEmailAddress
-      WHERE Address = 'info@aeoworks.org'
-    ];
-    String fromEmail = '';
-    if (orgEmail.size() > 0)
-      fromEmail = orgEmail[0].Id;
-    // get the email addresses of all the cohort members
-    List<Contact> cohortMembers = [
-      SELECT Id, Email
-      FROM Contact
-      WHERE AccountId = :cohortId
-    ];
-    String[] emailList = new List<String>();
-    Id firstCohortMemberId = null;
-    for (Contact c : cohortMembers) {
-      emailList.add(c.Email);
-      if (firstCohortMemberId == null) {
-        firstCohortMemberId = c.Id;
-        System.debug('firstCohortMemberId = ' + c.Id + ' with email: ' + c.Email);
-      }
-    }
-    // TODO - this should not be hardcoded
-    emailList.add('rkon@abcdandcompany.com');
-    emailList.add('mhansen@abcdandcompany.com');
-    Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-    mail.setToAddresses(emailList);
-    mail.setOrgWideEmailAddressId(fromEmail);
-    EmailTemplate emailTemplate = [SELECT Id, Subject, HtmlValue FROM EmailTemplate WHERE Name = :cohortNotificationEmailTemplateName LIMIT 1];
-    System.debug('emailTemplateId = ' + emailTemplate.Id);
-    mail.setTemplateId(emailTemplate.Id);
-    mail.setTargetObjectId(firstCohortMemberId);
-    mail.setWhatId(programMembership.Id);
-    mail.setTreatTargetObjectAsRecipient(FALSE);
-    List<Messaging.SingleEmailMessage> mailAsList = new List<Messaging.SingleEmailMessage>{
-      mail
-    };
-    Messaging.SendEmailResult[] sendEmailResult = Messaging.sendEmail(mailAsList);
-    System.debug('sendEmailResult size = ' + sendEmailResult.size());
-    System.debug('sendEmailResult[0].isSuccess() = ' + sendEmailResult[0].isSuccess());
-    if (!sendEmailResult[0].isSuccess()) {
-      Messaging.SendEmailError[] errors = sendEmailResult[0].getErrors();
-      String errMsg = '';
-      Boolean firstLoop = true;
-      for (Messaging.SendEmailError me : errors) {
-        if (firstLoop) {
-          errMsg += me.getStatusCode() + ' ' + me.getMessage();
-          firstLoop = false;
-        } else {
-          errMsg += ' | ' + me.getStatusCode() + ' ' + me.getMessage();
-        }
-      }
-      throw new EmailException(errMsg);
-    }
-  }
 }

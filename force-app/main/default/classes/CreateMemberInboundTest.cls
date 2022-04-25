@@ -428,7 +428,7 @@ private class CreateMemberInboundTest {
     pm.Individual__c = entrepreneur.Id;
     pm.Program_Members__c = cohort.Id;
     insert pm;
-    Program_Membership__c getPm = CreateMemberInbound.getOrCreateProgramMember(
+    Program_Membership__c getPm = CreateMemberInbound.getOrCreateProgramMemberForNewResiliAccount(
       entrepreneur.Id,
       program.Id,
       cohort.Id
@@ -470,7 +470,7 @@ private class CreateMemberInboundTest {
       programName,
       'A very good program'
     );
-    Program_Membership__c createPm = CreateMemberInbound.getOrCreateProgramMember(
+    Program_Membership__c createPm = CreateMemberInbound.getOrCreateProgramMemberForNewResiliAccount(
       entrepreneur.Id,
       program.Id,
       cohort.Id
@@ -495,13 +495,13 @@ private class CreateMemberInboundTest {
 
   @IsTest
   static void testGetOrCreateProgramMember_null_arguments() {
-    Program_Membership__c pm = CreateMemberInbound.getOrCreateProgramMember(
+    Program_Membership__c pm = CreateMemberInbound.getOrCreateProgramMemberForNewResiliAccount(
       null,
       null,
       null
     );
     System.assertEquals(null, pm, 'Should return null.');
-    pm = CreateMemberInbound.getOrCreateProgramMember(
+    pm = CreateMemberInbound.getOrCreateProgramMemberForNewResiliAccount(
       'bad string',
       'badder',
       'worst'
@@ -749,70 +749,6 @@ private class CreateMemberInboundTest {
       'text'
     );
     System.assertEquals(null, member, 'Should return null.');
-  }
-
-  @IsTest
-  /**
-   * @description Tests the notification of cohort members via Email.
-   *
-   * NOTE: FOR THIS TEST TO PASS THE SANDBOX MUST HAVE EMAIL > DELIVERABILITY > ACCESS TO SEND EMAIL SET TO 'ALL EMAIL'
-   */
-  static void testNotifyCohortMembers_happy_path() {
-    String firstName = 'Sam';
-    String lastName = TestDataFactory.createUniqueName('Last');
-    String email = firstName + '.' + lastName + '@test.com';
-    String businessName = TestDataFactory.createUniqueName('Business');
-    String programName = TestDataFactory.createUniqueName('Program');
-    Program__c program = TestDataFactory.createProgram(
-      programName,
-      'A very good program'
-    );
-    String cohortName = TestDataFactory.createUniqueName('Cohort');
-    Account cohort = new Account(Name = cohortName);
-    insert cohort;
-    Id cohortId = [SELECT Id FROM Account WHERE Name = :cohortName LIMIT 1].Id;
-    Contact cohortMember = new Contact(
-      FirstName = 'Cohort',
-      LastName = 'Member',
-      Email = 'mhansen+cohort_member@abcdandcompany.com'
-    );
-    cohortMember.AccountId = cohortId;
-    insert cohortMember;
-
-    Test.startTest();
-    System.assertEquals(
-      0,
-      Limits.getEmailInvocations(),
-      'No emails should have been sent.'
-    );
-    EmailException emailException = null;
-    try {
-      Contact con = new Contact();
-      con.FirstName = firstName;
-      con.LastName = lastName;
-      con.Email = email;
-      String contactId = CreateMemberInbound.insertContact(con, businessName);
-      Program_Membership__c pm = CreateMemberInbound.getOrCreateProgramMember(
-        contactId,
-        program.Id,
-        cohortId
-      );
-      CreateMemberInbound.notifyCohortMembers(pm);
-    } catch (EmailException e) {
-      emailException = e;
-      System.debug('Error notifying Cohort Members: ' + e.getMessage());
-    }
-    System.assertEquals(
-      null,
-      emailException,
-      'An exception was thrown during notification of cohort members.'
-    );
-    System.debug('Number of emails sent: ' + Limits.getEmailInvocations());
-    System.assert(
-      Limits.getEmailInvocations() > 0,
-      'Emails should have been sent.'
-    );
-    Test.stopTest();
   }
 
   @isTest

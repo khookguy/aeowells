@@ -45,17 +45,6 @@ public class SurveyResponseTriggerHandler {
     String bhaPayload = SurveyResponseParser.generateBHAPayload(surveyResponse);
     Resili.activate(email, bhaPayload);
 
-    // get the program membership record and notify the cohort
-    Program_Membership__c programMembership = getProgramMembershipFromSurveyResponse(
-      surveyId,
-      email,
-      SURVEY_TYPE_BHA
-    );
-    Notification.notifyCohortMembers(
-      programMembership,
-      Notification.BHA_COMPLETED
-    );
-
     /*
      * The DML operations.  These needs to happen after the callouts to Qualtrics and RESILI have completed.
      * See: https://help.salesforce.com/s/articleView?id=000326129&type=1
@@ -71,11 +60,22 @@ public class SurveyResponseTriggerHandler {
     update srUpdate;
 
     /*
-     * Save the survey response ID to the Program Membership
+     * Get the program membership. Save the survey response ID to the Program Membership
      */
+    Program_Membership__c programMembership = getProgramMembershipFromSurveyResponse(
+      surveyId,
+      email,
+      SURVEY_TYPE_BHA
+    );
     programMembership.BHA_Survey_Response_ID__c = responseId;
     programMembership.Member_Status__c = 'BHA Completed';
     update programMembership;
+
+    /*
+     * Nofity the cohort members and the entrepreneur about survey completion and RESILI activation
+     */
+    Notification.notifyCohortMembers(programMembership);
+    Notification.notifyEntrepreneur(programMembership);
   }
 
   /**
@@ -118,17 +118,14 @@ public class SurveyResponseTriggerHandler {
       email,
       SURVEY_TYPE_POST_COACHING
     );
-    Notification.notifyCohortMembers(
-      programMembership,
-      Notification.POST_COACHING_COMPLETED
-    );
     programMembership.Post_Coaching_Survey_Response_ID__c = responseId;
     programMembership.Member_Status__c = 'Post-Coaching Survey Completed';
     update programMembership;
+    Notification.notifyCohortMembers(programMembership);
   }
 
   /**
-   * @description Get the program membership object instance for the user who completed the survey. The survey ID
+   * @description A utility method that gets the program membership object instance for the user who completed the survey. The survey ID
    * should correspond uniquely to a program.  Since the entrepreneur belongs to only one cohort per program, we can
    * also uniquely identify the cohort and retrieve the program membership object.
    *
@@ -181,7 +178,8 @@ public class SurveyResponseTriggerHandler {
         BHA_Survey_ID__c,
         BHA_Survey_Response_ID__c,
         Post_Coaching_Survey_ID__c,
-        Post_Coaching_Survey_Response_ID__c
+        Post_Coaching_Survey_Response_ID__c,
+        Member_Status__c
       FROM Program_Membership__c
       WHERE Program__c = :program.Id AND Individual__c = :contact.Id
       LIMIT 1

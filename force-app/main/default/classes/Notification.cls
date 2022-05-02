@@ -1,100 +1,62 @@
 public with sharing class Notification {
-  public static String NEW_RESILI_ACCOUNT_CREATED = 'a new RESILI account has been created';
-  public static String BHA_COMPLETED = 'the BHA survey has been completed';
-  public static String POST_COACHING_COMPLETED = 'the Post Coaching Survey has been completed';
-  private static List<String> CC_EMAILS = new List<String>{
-    'rkon@abcdandcompany.com',
-    'mhansen@abcdandcompany.com'
-  };
-  private static String cohortNotificationEmailTemplateName_new_account = 'Cohort Notification - NEW ACCOUNT';
-  private static String cohortNotificationEmailTemplateName_bha_complete = 'Cohort Notification - RESILI ACTIVATION';
-  private static String cohortNotificationEmailTemplateName_post_coaching_complete = 'Cohort Notification - POST COACHING';
-
-  /**
-   * Send an email to notify cohort members of a status change for a member of their cohort.
-   *
-   * @param  programMembership the program membership object for the cohort member
+  /*
+   * Picklist values for Program Membership object's Member Status field. The status
+   * determines which email template to use for notification.
    */
-  public static void notifyCohortMembers(
-    Program_Membership__c programMembership,
-    String newStatus
-  ) {
-    Id programId = programMembership.Program__c;
-    Id cohortId = programMembership.Cohort__c;
-    Id contactId = programMembership.Individual__c;
+  public static String NEW_RESILI_ACCOUNT_CREATED = 'RESILI Account Created';
+  public static String BHA_COMPLETED = 'BHA Completed';
+  public static String POST_COACHING_COMPLETED = 'Post-Coaching Survey Completed';
+  public static String ONE_YEAR_SURVEY_COMPLETED = '1-Year Survey Completed';
+  public static String TWO_YEAR_SURVEY_COMPLETED = '2-Year Survey Completed';
 
-    String programName = [
-      SELECT Name
-      FROM Program__c
-      WHERE Id = :programId
-      LIMIT 1
-    ]
-    .Name;
-    String cohortName = [SELECT Name FROM Account WHERE Id = :cohortId LIMIT 1]
-    .Name;
-    // get the organization wide email address
+  /*
+   * The email address that sends notifications. It must be defined in Salesforce as an Organization-Wide Address.
+   */
+  // public static String FROM_EMAIL_ADDRESS = 'aeoinnovates@aeoworks.org';
+  public static String FROM_EMAIL_ADDRESS = 'info@aeoworks.org';
+  public static final Id FROM_EMAIL_ID;
+  static {
     List<OrgWideEmailAddress> orgEmail = [
-      SELECT Id, Address, DisplayName, Purpose, IsAllowAllProfiles
+      SELECT Id
       FROM OrgWideEmailAddress
-      WHERE Address = 'info@aeoworks.org'
+      WHERE Address = :FROM_EMAIL_ADDRESS
     ];
-    String fromEmail = '';
+    Id fromEmail = null;
     if (orgEmail.size() > 0)
       fromEmail = orgEmail[0].Id;
-    // get the email addresses of all the cohort members
-    List<Contact> cohortMembers = [
-      SELECT Id, Email
-      FROM Contact
-      WHERE AccountId = :cohortId
-    ];
-    String[] emailList = new List<String>();
-    Id firstCohortMemberId = null;
-    for (Contact c : cohortMembers) {
-      emailList.add(c.Email);
-      if (firstCohortMemberId == null) {
-        firstCohortMemberId = c.Id;
-        System.debug(
-          'firstCohortMemberId = ' +
-          c.Id +
-          ' with email: ' +
-          c.Email
-        );
-      }
-    }
-    for (String email : CC_EMAILS) {
-      emailList.add(email);
-    }
+    FROM_EMAIL_ID = fromEmail;
+  }
+
+  public static String cohortNotificationEmailTemplateName_new_account = 'Cohort Notification - NEW ACCOUNT';
+  public static String cohortNotificationEmailTemplateName_bha_complete = 'Cohort Notification - RESILI ACTIVATION';
+  public static String entrepreneurNotificationEmailTemplateName_bha_complete = 'Entrepreneur Notification - RESILI ACTIVATION';
+  public static String cohortNotificationEmailTemplateName_post_coaching_complete = 'Cohort Notification - POST COACHING';
+
+  /**
+   * @description Utility function that sends emails using a template.
+   *
+   * @param  toAddressList                List of email addresses or Ids (Lead or Contact) to send the email to.
+   * @param  orgWideFromEmailId           Id of an org wide email address.  Used as the from address.
+   * @param  emailTemplateId              Id of the email template
+   * @param  targetObjectId               Id of the target object. Typically one of the email recipients.
+   * @param  whatId                       Id of the object used by the template for property merge. Typically a Program Membership object.
+   * @param  treatTargetObjectAsRecipient Set to true if the targetObjectId is also the receipient. This is the case for entrepreneur emails, but not cohort emails.
+   */
+  public static void sendEmail(
+    List<String> toAddressList,
+    Id orgWideFromEmailId,
+    Id emailTemplateId,
+    Id targetObjectId,
+    Id whatId,
+    Boolean treatTargetObjectAsRecipient
+  ) {
     Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-    mail.setToAddresses(emailList);
-    mail.setOrgWideEmailAddressId(fromEmail);
-    EmailTemplate emailTemplate = null;
-    if (newStatus == NEW_RESILI_ACCOUNT_CREATED) {
-      emailTemplate = [
-        SELECT Id, Subject, HtmlValue
-        FROM EmailTemplate
-        WHERE Name = :cohortNotificationEmailTemplateName_new_account
-        LIMIT 1
-      ];
-    } else if (newStatus == BHA_COMPLETED) {
-      emailTemplate = [
-        SELECT Id, Subject, HtmlValue
-        FROM EmailTemplate
-        WHERE Name = :cohortNotificationEmailTemplateName_bha_complete
-        LIMIT 1
-      ];
-    } else if (newStatus == POST_COACHING_COMPLETED) {
-      emailTemplate = [
-        SELECT Id, Subject, HtmlValue
-        FROM EmailTemplate
-        WHERE Name = :cohortNotificationEmailTemplateName_post_coaching_complete
-        LIMIT 1
-      ];
-    }
-    System.debug('emailTemplateId = ' + emailTemplate.Id);
-    mail.setTemplateId(emailTemplate.Id);
-    mail.setTargetObjectId(firstCohortMemberId);
-    mail.setWhatId(programMembership.Id);
-    mail.setTreatTargetObjectAsRecipient(false);
+    mail.setToAddresses(toAddressList);
+    mail.setOrgWideEmailAddressId(orgWideFromEmailId);
+    mail.setTemplateId(emailTemplateId);
+    mail.setTargetObjectId(targetObjectId);
+    mail.setWhatId(whatId);
+    mail.setTreatTargetObjectAsRecipient(treatTargetObjectAsRecipient);
     List<Messaging.SingleEmailMessage> mailAsList = new List<Messaging.SingleEmailMessage>{
       mail
     };
@@ -118,6 +80,115 @@ public with sharing class Notification {
         }
       }
       throw new EmailException(errMsg);
+    }
+  }
+
+  /**
+   * @description Send an email notification to the entrepreneur notifying them of their status. Only supported for
+   * BHA_COMPLETED status at this time. Any other status will not send a notification.
+   *
+   * @param  programMembership programMembership object that contains entrepreneur and status
+   */
+  public static void notifyEntrepreneur(
+    Program_Membership__c programMembership
+  ) {
+    List<EmailTemplate> emailTemplateList = null;
+    if (programMembership.Member_Status__c == BHA_COMPLETED) {
+      emailTemplateList = [
+        SELECT Id, Subject, HtmlValue
+        FROM EmailTemplate
+        WHERE Name = :entrepreneurNotificationEmailTemplateName_bha_complete
+        LIMIT 1
+      ];
+    }
+    if (emailTemplateList != null & emailTemplateList.size() > 0) {
+      sendEmail(
+        new List<Id>{ programMembership.Individual__c },
+        FROM_EMAIL_ID,
+        emailTemplateList[0].Id,
+        programMembership.Individual__c,
+        programMembership.Id,
+        true
+      );
+    }
+  }
+
+  /**
+   * Send an email to notify cohort members of a status change for a member of their cohort. Supports these statuses:
+   * - NEW_RESILI_ACCOUNT_CREATED
+   * - BHA_COMPLETED
+   * - POST_COACHING_COMPLETED
+   *
+   * @param  programMembership the program membership object for the cohort member
+   */
+  public static void notifyCohortMembers(
+    Program_Membership__c programMembership
+  ) {
+    Id programId = programMembership.Program__c;
+    Id cohortId = programMembership.Cohort__c;
+    Id contactId = programMembership.Individual__c;
+    String memberStatus = programMembership.Member_Status__c;
+
+    String programName = [
+      SELECT Name
+      FROM Program__c
+      WHERE Id = :programId
+      LIMIT 1
+    ]
+    .Name;
+    String cohortName = [SELECT Name FROM Account WHERE Id = :cohortId LIMIT 1]
+    .Name;
+
+    // get the email addresses of all the cohort members
+    List<Contact> cohortMembers = [
+      SELECT Id, Email
+      FROM Contact
+      WHERE AccountId = :cohortId
+    ];
+    String[] emailList = new List<String>();
+    Id firstCohortMemberId = null;
+    for (Contact c : cohortMembers) {
+      emailList.add(c.Email);
+      if (firstCohortMemberId == null) {
+        firstCohortMemberId = c.Id;
+        System.debug(
+          'firstCohortMemberId = ' +
+          c.Id +
+          ' with email: ' +
+          c.Email
+        );
+      }
+    }
+
+    List<EmailTemplate> emailTemplateList = null;
+    if (memberStatus == NEW_RESILI_ACCOUNT_CREATED) {
+      emailTemplateList = [
+        SELECT Id, Subject, HtmlValue
+        FROM EmailTemplate
+        WHERE Name = :cohortNotificationEmailTemplateName_new_account
+      ];
+    } else if (memberStatus == BHA_COMPLETED) {
+      emailTemplateList = [
+        SELECT Id, Subject, HtmlValue
+        FROM EmailTemplate
+        WHERE Name = :cohortNotificationEmailTemplateName_bha_complete
+      ];
+    } else if (memberStatus == POST_COACHING_COMPLETED) {
+      emailTemplateList = [
+        SELECT Id, Subject, HtmlValue
+        FROM EmailTemplate
+        WHERE Name = :cohortNotificationEmailTemplateName_post_coaching_complete
+      ];
+    }
+    if (emailTemplateList != null & emailTemplateList.size() > 0) {
+      sendEmail(
+        emailList,
+        FROM_EMAIL_ID,
+        emailTemplateList[0].Id,
+        firstCohortMemberId,
+        programMembership.Id,
+        false
+      );
     }
   }
 }

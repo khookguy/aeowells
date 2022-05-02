@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
     <available>true</available>
-    <description>Notification that is sent to the Cohort managers whenever one of the entrepreneurs invited by the Cohort creates a new RESILI account.</description>
+    <description>Notification that is sent to the Entrepreneur they complete the BHA survey and are activated in RESILI.</description>
     <encodingKey>ISO-8859-1</encodingKey>
-    <name>Cohort Notification - NEW ACCOUNT</name>
+    <name>Entrepreneur Notification - RESILI ACTIVATION</name>
     <relatedEntityType>Program_Membership__c</relatedEntityType>
     <style>none</style>
-    <subject>New user account created on RESILI</subject>
+    <subject>Welcome to RESILI – Personalized Business recommendations inside!</subject>
     <type>custom</type>
     <uiType>SFX</uiType>
 </EmailTemplate>

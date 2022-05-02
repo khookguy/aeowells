@@ -1,59 +1,93 @@
 @isTest
-private class SurveyResponseTrigger_Test {
+public with sharing class SurveyResponseTrigger_Test {
+  private static final String BHA_SURVEY_RESPONSE_ID = 'R_264EqlGMmYU3s6R';
+  private static final String BHA_SURVEY_ID = SurveyResponseTriggerHandler.BHA_SURVEY_ID_WELLS;
+  private static final String POST_COACHING_SURVEY_ID = SurveyResponseTriggerHandler.POST_COACHING_SURVEY_ID_WELLS;
+  private static final String ENTREPRENEUR_FIRST_NAME = 'Sam';
+  private static final String ENTREPRENEUR_LAST_NAME = 'Waterstone';
+  private static final String ENTREPRENEUR_EMAIL = 'sam.waterstone@privateidaho.com';
+  private static final String ENTREPRENEUR_BIZ_NAME = 'Private Idaho';
+  private static final String PROGRAM_NAME = 'Spudzone';
+  private static final String COHORT_NAME = 'Fry Distribution';
+  private static final String COHORT_MEMBER1_EMAIL = 'cohort1@frydistribution.com';
+  private static final String COHORT_MEMBER2_EMAIL = 'cohort2@frydistribution.com';
+
+
+    /**
+     * @description create records used in tests
+     */
+  @testSetup static void setup() {
+    Contact entrepreneur = new Contact(
+      FirstName = ENTREPRENEUR_FIRST_NAME,
+      LastName = ENTREPRENEUR_LAST_NAME,
+      Email = ENTREPRENEUR_EMAIL
+    );
+    Account cohort = new Account(Name = COHORT_NAME);
+    Program__c program = new Program__c(
+      Name = PROGRAM_NAME,
+      BHA_Survey_ID__c = BHA_SURVEY_ID,
+      Post_Coaching_Survey_ID__c = POST_COACHING_SURVEY_ID
+    );
+    insert entrepreneur;
+    insert cohort;
+    insert program;
+    Contact presistedEntrepreneur = [
+      SELECT Id
+      FROM Contact
+      WHERE Email = :ENTREPRENEUR_EMAIL
+      LIMIT 1
+    ];
+    Account persistedCohort = [
+      SELECT Id
+      FROM Account
+      WHERE Name = :COHORT_NAME
+      LIMIT 1
+    ];
+    Program__c persistedProgram = [
+      SELECT Id
+      FROM Program__c
+      WHERE Name = :PROGRAM_NAME
+      LIMIT 1
+    ];
+    Program_Membership__c prgMembership = new Program_Membership__c();
+    prgMembership.Individual__c = presistedEntrepreneur.Id;
+    prgMembership.Cohort__c = persistedCohort.Id;
+    prgMembership.Program__c = persistedProgram.Id;
+    insert prgMembership;
+    Contact cohortMember1 = new Contact(
+      FirstName = 'Memby1',
+      LastName = 'Ofcohort',
+      Email = COHORT_MEMBER1_EMAIL,
+      AccountId = persistedCohort.Id
+    );
+    Contact cohortMember2 = new Contact(
+      FirstName = 'Memby2',
+      LastName = 'Ofcohort',
+      Email = COHORT_MEMBER2_EMAIL,
+      AccountId = persistedCohort.Id
+    );
+    insert cohortMember1;
+    insert cohortMember2;
+  }
+
+
   @isTest
   static void surveyTrigger_bha_wells_pass_test() {
     Test.setMock(
       HttpCalloutMock.class,
       new QualtricsMock.GetSurveyResponseMockPass()
     );
+
+    // set status as resili account created
+    Program_Membership__c setupProgMemb = [SELECT Id FROM Program_Membership__c WHERE Member_Email__c = :ENTREPRENEUR_EMAIL LIMIT 1];
+    setupProgMemb.Member_Status__c = Notification.NEW_RESILI_ACCOUNT_CREATED;
+    update setupProgMemb;
+
+    // create a survey response
     qualtrics__Survey_Response__c surveyResponse = new qualtrics__Survey_Response__c();
-    surveyResponse.Response_ID__c = 'R_264EqlGMmYU3s6R';
-    surveyResponse.qualtrics__Q_SurveyID__c = SurveyResponseTriggerHandler.BHA_SURVEY_ID_WELLS;
-    surveyResponse.Email__c = 'test@testing.com';
-    Contact contact = new Contact(
-      FirstName = 'Tester',
-      LastName = 'Testing',
-      Email = 'test@testing.com'
-    );
-    Account cohort = new Account(Name = 'Test Cohort');
-    Program__c program = new Program__c(
-      Name = 'Test Program',
-      BHA_Survey_ID__c = SurveyResponseTriggerHandler.BHA_SURVEY_ID_WELLS,
-      Post_Coaching_Survey_ID__c = SurveyResponseTriggerHandler.POST_COACHING_SURVEY_ID_WELLS
-    );
-    insert contact;
-    insert cohort;
-    insert program;
-    Contact persistedContact = [
-      SELECT Id
-      FROM Contact
-      WHERE Email = :contact.Email
-      LIMIT 1
-    ];
-    Account persistedCohort = [
-      SELECT Id
-      FROM Account
-      WHERE Name = :cohort.Name
-      LIMIT 1
-    ];
-    Program__c persistedProgram = [
-      SELECT Id
-      FROM Program__c
-      WHERE Name = :program.Name
-      LIMIT 1
-    ];
-    Program_Membership__c prgMembership = new Program_Membership__c();
-    prgMembership.Individual__c = persistedContact.Id;
-    prgMembership.Cohort__c = persistedCohort.Id;
-    prgMembership.Program__c = persistedProgram.Id;
-    insert prgMembership;
-    Contact cohortMember = new Contact(
-      FirstName = 'Memby',
-      LastName = 'Ofcohort',
-      Email = 'memby@cohorticus.com',
-      AccountId = persistedCohort.Id
-    );
-    insert cohortMember;
+    surveyResponse.Response_ID__c = BHA_SURVEY_RESPONSE_ID;
+    surveyResponse.qualtrics__Q_SurveyID__c = BHA_SURVEY_ID;
+    surveyResponse.Email__c = ENTREPRENEUR_EMAIL;
 
     Test.startTest();
     insert surveyResponse;
@@ -66,8 +100,8 @@ private class SurveyResponseTrigger_Test {
         Full_Survey_Response__c
       FROM qualtrics__Survey_Response__c
       WHERE
-        Response_ID__c = 'R_264EqlGMmYU3s6R'
-        AND qualtrics__Q_SurveyID__c = :SurveyResponseTriggerHandler.BHA_SURVEY_ID_WELLS
+        Response_ID__c = :BHA_SURVEY_RESPONSE_ID
+        AND qualtrics__Q_SurveyID__c = :BHA_SURVEY_ID
       LIMIT 1
     ];
     System.assertNotEquals(null, sr, 'Survey Response object was not found');
@@ -124,6 +158,8 @@ private class SurveyResponseTrigger_Test {
       programMembership.BHA_Survey_ID__c,
       'Wrong BHA survey ID added to program membership object instance'
     );
+    System.assertEquals(Notification.BHA_COMPLETED, programMembership.Member_Status__c);
+    Integer emailSends = Limits.getEmailInvocations();
   }
 
   @isTest
@@ -132,9 +168,13 @@ private class SurveyResponseTrigger_Test {
       HttpCalloutMock.class,
       new QualtricsMock.GetSurveyResponseMockFail()
     );
+
+    // create a survey response
     qualtrics__Survey_Response__c surveyResponse = new qualtrics__Survey_Response__c();
-    surveyResponse.Response_ID__c = 'R_264EqlGMmYU3s6R';
-    surveyResponse.qualtrics__Q_SurveyID__c = SurveyResponseTriggerHandler.BHA_SURVEY_ID_WELLS;
+    surveyResponse.Response_ID__c = BHA_SURVEY_RESPONSE_ID;
+    surveyResponse.qualtrics__Q_SurveyID__c = BHA_SURVEY_ID;
+    surveyResponse.Email__c = ENTREPRENEUR_EMAIL;
+
     CalloutException ce = null;
     try {
       Test.startTest();
@@ -151,8 +191,8 @@ private class SurveyResponseTrigger_Test {
         Full_Survey_Response__c
       FROM qualtrics__Survey_Response__c
       WHERE
-        Response_ID__c = 'R_264EqlGMmYU3s6R'
-        AND qualtrics__Q_SurveyID__c = :SurveyResponseTriggerHandler.BHA_SURVEY_ID_WELLS
+        Response_ID__c = :BHA_SURVEY_RESPONSE_ID
+        AND qualtrics__Q_SurveyID__c = :BHA_SURVEY_ID
       LIMIT 1
     ];
     System.assertNotEquals(null, sr, 'Survey Response object was not found');
@@ -170,54 +210,18 @@ private class SurveyResponseTrigger_Test {
       HttpCalloutMock.class,
       new QualtricsMock.GetSurveyResponseMockPass()
     );
+
+
+    // set status as bha completed
+    Program_Membership__c setupProgMemb = [SELECT Id FROM Program_Membership__c WHERE Member_Email__c = :ENTREPRENEUR_EMAIL LIMIT 1];
+    setupProgMemb.Member_Status__c = Notification.BHA_COMPLETED;
+    update setupProgMemb;
+
+    // create a survey response
     qualtrics__Survey_Response__c surveyResponse = new qualtrics__Survey_Response__c();
-    surveyResponse.Response_ID__c = 'R_264EqlGMmYU3s6R';
-    surveyResponse.qualtrics__Q_SurveyID__c = SurveyResponseTriggerHandler.POST_COACHING_SURVEY_ID_WELLS;
-    surveyResponse.Email__c = 'test@testing.com';
-    Contact contact = new Contact(
-      FirstName = 'Tester',
-      LastName = 'Testing',
-      Email = 'test@testing.com'
-    );
-    Account cohort = new Account(Name = 'Test Cohort');
-    Program__c program = new Program__c(
-      Name = 'Test Program',
-      BHA_Survey_ID__c = SurveyResponseTriggerHandler.BHA_SURVEY_ID_WELLS,
-      Post_Coaching_Survey_ID__c = SurveyResponseTriggerHandler.POST_COACHING_SURVEY_ID_WELLS
-    );
-    insert contact;
-    insert cohort;
-    insert program;
-    Contact persistedContact = [
-      SELECT Id
-      FROM Contact
-      WHERE Email = :contact.Email
-      LIMIT 1
-    ];
-    Account persistedCohort = [
-      SELECT Id
-      FROM Account
-      WHERE Name = :cohort.Name
-      LIMIT 1
-    ];
-    Program__c persistedProgram = [
-      SELECT Id
-      FROM Program__c
-      WHERE Name = :program.Name
-      LIMIT 1
-    ];
-    Program_Membership__c prgMembership = new Program_Membership__c();
-    prgMembership.Individual__c = persistedContact.Id;
-    prgMembership.Cohort__c = persistedCohort.Id;
-    prgMembership.Program__c = persistedProgram.Id;
-    insert prgMembership;
-    Contact cohortMember = new Contact(
-      FirstName = 'Memby',
-      LastName = 'Ofcohort',
-      Email = 'memby@cohorticus.com',
-      AccountId = persistedCohort.Id
-    );
-    insert cohortMember;
+    surveyResponse.Response_ID__c = BHA_SURVEY_RESPONSE_ID;
+    surveyResponse.qualtrics__Q_SurveyID__c = POST_COACHING_SURVEY_ID;
+    surveyResponse.Email__c = ENTREPRENEUR_EMAIL;
 
     Test.startTest();
     insert surveyResponse;
@@ -226,8 +230,8 @@ private class SurveyResponseTrigger_Test {
       SELECT Id, Response_ID__c, qualtrics__Q_SurveyID__c
       FROM qualtrics__Survey_Response__c
       WHERE
-        Response_ID__c = 'R_264EqlGMmYU3s6R'
-        AND qualtrics__Q_SurveyID__c = :SurveyResponseTriggerHandler.POST_COACHING_SURVEY_ID_WELLS
+        Response_ID__c = :BHA_SURVEY_RESPONSE_ID
+        AND qualtrics__Q_SurveyID__c = :POST_COACHING_SURVEY_ID
       LIMIT 1
     ];
     System.assertNotEquals(null, sr, 'Survey Response object was not found');

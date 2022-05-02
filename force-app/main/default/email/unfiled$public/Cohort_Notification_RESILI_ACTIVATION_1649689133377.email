@@ -2,10 +2,22 @@
 <head>
 	<title></title>
 </head>
-<body style="height: auto; min-height: auto;">The BHA survey and RESILI Activation have been completed for:&nbsp; {{{Program_Membership__c.Name__c}}} with email&nbsp;{{{Program_Membership__c.Member_Email__c}}} and business named {{{Program_Membership__c.Member_Business_Name__c}}}.&nbsp;<br />
+<body style="height: auto; min-height: auto;">To&nbsp;{{{Program_Membership__c.Cohort_Name__c}}} Cohort Members:<br />
 <br />
-Here is the survey response:&nbsp;https://quickview.walkerinfo.com/?SID={{{Program_Membership__c.BHA_Survey_ID__c}}}&amp;R={{{Program_Membership__c.BHA_Survey_Response_ID__c}}}<br />
+We hope this email finds you well. We are writing to let you know that the following entrepreneur has completed their Business Health Assessment.<br />
 <br />
-{{{Program_Membership__c.Name__c}}} is a member of the {{{Program_Membership__c.Program__c}}}&nbsp;program in cohort {{{Program_Membership__c.Cohort_Name__c}}}.<br />
-&nbsp;
+{{{Program_Membership__c.Name__c}}}<br />
+<a href="https://quickview.walkerinfo.com/?SID={{{Program_Membership__c.BHA_Survey_ID__c}}}&amp;R={{{Program_Membership__c.BHA_Survey_Response_ID__c}}}">Assessment Results</a><br />
+<br />
+Please log into the <a href="https://partners.aeoworks.org">AEO Partner Portal</a> to review this and other updates.<br />
+<br />
+Regards,<br />
+Innovations Department at AEO<br />
+<br />
+<img alt="ColorBarThin" src="https://aeoworks--wfs--c.documentforce.com/sfc/servlet.shepherd/version/download/0687A0000017Yh0?asPdf=false&amp;operationContext=CHATTER" style="max-width: 1616.8999999999999px" title="ColorBarThin" /><br />
+<br />
+Copyright ©&nbsp; {{{Program_Membership__c.Current_Year__c}}}, All rights reserved.<br />
+<br />
+Our mailing address is:<br />
+{{{Organization.Address}}}
 </body></html>

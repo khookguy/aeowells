@@ -1,0 +1,37 @@
+<html> 
+ <head> 
+  <title></title> 
+ </head> 
+ <body style="height: auto; min-height: auto;">
+   Dear {{{Program_Membership__c.Member_First_Name__c}}},&nbsp; 
+  <br /> 
+  <br /> Thank you for taking the time to complete the Business Health Assessment. We have analyzed your responses to the questions and produced personalized recommendations to support your engagement on RESILI and the growth of your business.&nbsp; 
+  <br /> &nbsp; 
+  <ol> 
+   <li>Personalized Learning Plan: <a href="https://resili.aeoworks.org/my-profile">Log in</a>&nbsp;to your RESILI account to access your personalized learning plan with recommended courses to get you started on the platform. As new courses become available, you’ll find new personalized recommendations on your Profile page. &nbsp;</li> 
+   <li>Personalized Business Insights: Use <a href="https://quickview.walkerinfo.com/?SID={{{Program_Membership__c.BHA_Survey_ID__c}}}&amp;R={{{Program_Membership__c.BHA_Survey_Response_ID__c}}}">this link</a> to view your personalized business recommendations. These can be viewed by scrolling to the bottom under “Embedded Data”. There, you’ll find the areas of strength and opportunities for your business as well as recommendations on how to grow your business. For easier access, this link has also been included in your RESILI Profile Page. &nbsp;</li> 
+   <li>Request a Coaching Session: In your Profile Page, you’ll also be able to request a meeting with a trained coach to review your Business Health Assessment, your Personalized Business Insights, and provide additional guidance on how to proceed with your business. During this 1 hour meeting, you’ll be able to ask questions and receive live guidance. At the end of this session, you’ll receive a “Business Snapshot” that provides a roadmap on what strategies to implement to ensure business success over the next 12 months. &nbsp;</li> 
+  </ol> 
+  <br /> Thank you again for completing the Business Health Assessment. We look forward to working with you to grow your business. &nbsp; 
+  <br /> 
+  <br /> 
+  <br /> Best,&nbsp; 
+  <br /> 
+  <br /> Innovations Department at AEO&nbsp; 
+  <br /> 
+  <br /> 
+  <br /> 
+  <img alt="ColorBarThin" src="{[devName:ColorBarThin]}" style="max-width: 1616.9px; width: 1063px; height: 18px;" title="ColorBarThin" /> 
+  <br /> 
+  <br /> <em>Copyright ©&nbsp; {{{Program_Membership__c.Current_Year__c}}}, All rights reserved.</em> 
+  <br /> 
+  <br /> Our mailing address is: 
+  <br /> {{{Organization.Address}}} 
+  <div id="" style="left: 8px; top: 410px;">
+    &nbsp; 
+  </div> 
+  <div id="" style="left: 8px; top: 410px;">
+    &nbsp; 
+  </div> 
+ </body>
+</html>

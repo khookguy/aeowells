@@ -6,7 +6,7 @@
     <name>Cohort Notification - RESILI ACTIVATION</name>
     <relatedEntityType>Program_Membership__c</relatedEntityType>
     <style>none</style>
-    <subject>BHA Survey and RESILI Activation are completed for:  {{{Program_Membership__c.Name__c}}}</subject>
+    <subject>New Business Health Assessment completed</subject>
     <type>custom</type>
     <uiType>SFX</uiType>
 </EmailTemplate>

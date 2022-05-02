@@ -481,7 +481,7 @@ global class CreateMemberInbound {
             );
             // since the membership is newly created, notify the cohort
             Notification.notifyCohortMembers(
-              programMembership, Notification.NEW_RESILI_ACCOUNT_CREATED
+              programMembership
             );
           }
         }

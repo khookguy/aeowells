@@ -6,7 +6,7 @@
     <name>Cohort Notification - POST COACHING</name>
     <relatedEntityType>Program_Membership__c</relatedEntityType>
     <style>none</style>
-    <subject>Post-Coaching Survey Completed For:  {{{Program_Membership__c.Name__c}}}</subject>
+    <subject>New Post Coaching Clinic Survey completed</subject>
     <type>custom</type>
     <uiType>SFX</uiType>
 </EmailTemplate>

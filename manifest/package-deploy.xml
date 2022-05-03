@@ -16,6 +16,8 @@
         <members>TestDataFactory</members>
         <members>Notification</members>
         <members>Notification_Test</members>
+        <members>GettingStartedController</members>
+        <members>GettingStartedController_Test</members>
         <name>ApexClass</name>
     </types>
     <types>

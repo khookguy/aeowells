@@ -12,8 +12,7 @@ public with sharing class Notification {
   /*
    * The email address that sends notifications. It must be defined in Salesforce as an Organization-Wide Address.
    */
-  // public static String FROM_EMAIL_ADDRESS = 'aeoinnovates@aeoworks.org';
-  public static String FROM_EMAIL_ADDRESS = 'info@aeoworks.org';
+  public static String FROM_EMAIL_ADDRESS = 'aeoinnovates@aeoworks.org';
   public static final Id FROM_EMAIL_ID;
   static {
     List<OrgWideEmailAddress> orgEmail = [
@@ -68,18 +67,7 @@ public with sharing class Notification {
       'sendEmailResult[0].isSuccess() = ' + sendEmailResult[0].isSuccess()
     );
     if (!sendEmailResult[0].isSuccess()) {
-      Messaging.SendEmailError[] errors = sendEmailResult[0].getErrors();
-      String errMsg = '';
-      Boolean firstLoop = true;
-      for (Messaging.SendEmailError me : errors) {
-        if (firstLoop) {
-          errMsg += me.getStatusCode() + ' ' + me.getMessage();
-          firstLoop = false;
-        } else {
-          errMsg += ' | ' + me.getStatusCode() + ' ' + me.getMessage();
-        }
-      }
-      throw new EmailException(errMsg);
+      throw new EmailException(sendEmailResult[0].getErrors()[0].getMessage());
     }
   }
 

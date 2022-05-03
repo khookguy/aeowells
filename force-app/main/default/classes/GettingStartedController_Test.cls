@@ -10,8 +10,10 @@ public class GettingStartedController_Test {
         Program__c programForCohort = new Program__c(Name=programName, Organization__c=cohort.Id);
         insert programForCohort;
         Program__c program = [SELECT Id, Name, Organization__c from Program__c WHERE Name = :programName LIMIT 1];
-        Program_Partner_Membership__c PPM = new Program_Partner_Membership__c(Program__c=program.Id,Cohort__c=cohort.Id);
-        insert PPM;
+        Program_Partner_Membership__c ppm = new Program_Partner_Membership__c(Program__c=program.Id,Cohort__c=cohort.Id);
+        ppm.Bitly_Link_To_Resili__c = 'https://bit.ly/3uSwAcG';
+        ppm.Bitly_Link_to_Post_Coaching_Survey__c = 'https://bit.ly/3vC2bjn';
+        insert ppm;
 
         // create the sys admin user inside test because it needs to be a future
         Test.startTest();
@@ -56,14 +58,18 @@ public class GettingStartedController_Test {
         User portalUser = [Select Id, ContactId, AccountId from user where Alias = 'test123' limit 1 ];
         String userCohortJson;
         System.runAs ( portalUser ) {
-            userCohortJson = GettingStartedController.serverGetUserAndCohort(programName);
+            userCohortJson = GettingStartedController.serverGetUserCohortAndLinks(programName);
         }
 
         Map<String,String> userCohort = (Map<String,String>) JSON.deserialize(userCohortJson, Map<String,String>.class);
         String userId = userCohort.get('userId');
         String cohortId = userCohort.get('cohortId');
+        String bitlyResili = userCohort.get('bitlyResili');
+        String bitlyPostCoach = userCohort.get('bitlyPostCoach');
         System.assertEquals(portalUser.Id, userId);
-        System.assertEquals(cohortId, cohort.Id);
+        System.assertEquals(cohort.Id, cohortId);
+        System.assertEquals(ppm.Bitly_Link_To_Resili__c, bitlyResili);
+        System.assertEquals(ppm.Bitly_Link_to_Post_Coaching_Survey__c, bitlyPostCoach);
     }
 
     @future

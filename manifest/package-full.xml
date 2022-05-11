@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
-    <types>
+     <types>
         <members>Program__c</members>
         <members>Program_Membership__c</members>
         <members>Program_Partner_Membership__c</members>
@@ -10,24 +10,33 @@
     <types>
         <members>CreateMemberInbound</members>
         <members>CreateMemberInboundTest</members>
-        <members>QualtricsSurvey</members>
-        <members>QualtricsSurvey_Test</members>
-        <members>QualtricsMock</members>
-        <members>GettingStartedController</members>
-        <members>GettingStartedController_Test</members>
-        <members>SurveyResponseTriggerHandler</members>
-        <members>SurveyResponseTrigger_Test</members>
         <members>SurveyResponseParser</members>
         <members>SurveyResponseParser_Test</members>
-        <members>TestDataFactory</members>
+        <members>SurveyResponseTriggerHandler</members>
+        <members>SurveyResponseTrigger_Test</members>
         <members>Resili</members>
         <members>ResiliMock</members>
         <members>Resili_Test</members>
+        <members>QualtricsSurvey</members>
+        <members>QualtricsMock</members>
+        <members>QualtricsSurvey_Test</members>
+        <members>TestDataFactory</members>
+        <members>Notification</members>
+        <members>Notification_Test</members>
+        <members>GettingStartedController</members>
+        <members>GettingStartedController_Test</members>
         <name>ApexClass</name>
     </types>
     <types>
         <members>SurveyResponseTrigger</members>
         <name>ApexTrigger</name>
+    </types>
+    <types>
+        <members>unfiled$public/Cohort_Notification_RESILI_ACTIVATION_1649689133377</members>
+        <members>unfiled$public/Cohort_Notification_NEW_ACCOUNT_1650570539335</members>
+        <members>unfiled$public/Cohort_Notification_POST_COACHING_1650855748747</members>
+        <members>unfiled$public/Entrepreneur_Notification_RESILI_ACTIVATION_1651010960503</members>
+        <name>EmailTemplate</name>
     </types>
     <types>
         <members>SurveyFullResponse_WellsFargo</members>
@@ -39,10 +48,30 @@
         <members>Qualtrics_API_for_AEO</members>
         <name>RemoteSiteSetting</name>
     </types>
-    <types>
-        <members>unfiled$public/Cohort_Notification_RESILI_ACTIVATION_1649689133377</members>
-        <name>EmailTemplate</name>
+       <types>
+        <members>GettingStarted</members>
+        <members>ListView2</members>
+        <name>AuraDefinitionBundle</name>
     </types>
+    <types>
+        <members>Contact.Individual</members>
+        <members>Account.General_Organization</members>
+        <name>RecordType</name>
+    </types>
+    <types>
+        <members>AccountType</members>
+        <name>StandardValueSet</members>
+    </types>
+    <types>
+        <members>Account.Type</members>
+        <members>Program_Log__c.Status__c</members>
+        <name>CustomField</name>
+    </types>
+    <types>
+        <members>Account.AEO_Compact_Layout</members>
+        <name>CompactLayout</name>
+    </types>
+    <!--
     <types>
         <members>GettingStarted</members>
         <members>ListView2</members>
@@ -66,7 +95,6 @@
         <members>Account.AEO_Compact_Layout</members>
         <name>CompactLayout</name>
     </types>
-<!--
     <types>
         <members>*</members>
         <name>ApexComponent</name>

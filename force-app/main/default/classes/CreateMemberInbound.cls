@@ -10,6 +10,7 @@ global class CreateMemberInbound {
   global class ResponseWrapper {
     global String status { get; set; }
     global String memberId { get; set; }
+    global String contactId { get; set; }
   }
 
   global class RequestWrapper {
@@ -54,12 +55,14 @@ global class CreateMemberInbound {
           );
           if (member != null) {
             response.memberId = member.Id;
+            response.contactId = member.Individual__c;
             response.status = 'Success';
           }
         }
       }
     } catch (Exception ex) {
       response.memberId = '';
+      response.contactId = '';
       response.status = 'Error: ' + ex.getMessage();
     }
     return response;

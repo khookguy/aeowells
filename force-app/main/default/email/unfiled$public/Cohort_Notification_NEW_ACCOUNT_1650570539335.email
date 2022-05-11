@@ -1,22 +1,25 @@
-<html>
-<head>
-	<title></title>
-</head>
-<body style="height: auto; min-height: auto;">To&nbsp;{{{Program_Membership__c.Cohort_Name__c}}} Cohort Members:<br />
-<br />
-We hope this email finds you well. We are writing to let you know that the following entrepreneur has created a RESILI profile.&nbsp;<br />
-<br />
-{{{Program_Membership__c.Name__c}}}<br />
-<br />
-Please log into the <a href="https://partners.aeoworks.org">AEO Partner Portal</a> &nbsp;to review this and other updates.&nbsp;<br />
-<br />
-Regards,&nbsp;<br />
-Innovations Department at AEO&nbsp;<br />
-<br />
-<img alt="ColorBarThin" src="https://aeoworks--wfs--c.documentforce.com/sfc/servlet.shepherd/version/download/0687A0000017Yh0?asPdf=false&amp;operationContext=CHATTER" style="max-width: 683.05px" title="ColorBarThin" /><br />
-<br />
-Copyright ©&nbsp; {{{Program_Membership__c.Current_Year__c}}}, All rights reserved.<br />
-<br />
-Our mailing address is:<br />
-{{{Organization.Address}}}
-</body></html>
+<html> 
+ <head> 
+  <title></title> 
+ </head> 
+ <body style="height: auto; min-height: auto;">
+   To&nbsp;{{{Program_Membership__c.Cohort_Name__c}}}: 
+  <br /> 
+  <br /> We hope this email finds you well. We are writing to let you know that the following entrepreneur has created a RESILI profile.&nbsp; 
+  <br /> 
+  <br /> {{{Program_Membership__c.Name__c}}} 
+  <br /> 
+  <br /> Please log into the <a href="https://partners.aeoworks.org">AEO Partner Portal</a> &nbsp;to review this and other updates.&nbsp; 
+  <br /> 
+  <br /> Regards,&nbsp; 
+  <br /> Innovations Department at AEO&nbsp; 
+  <br /> 
+  <br /> 
+  <img alt="ColorBarThin" src="{[devName:ColorBarThin]}" style="max-width: 683.05px" title="ColorBarThin" /> 
+  <br /> 
+  <br /> Copyright ©&nbsp; {{{Program_Membership__c.Current_Year__c}}}, All rights reserved. 
+  <br /> 
+  <br /> Our mailing address is: 
+  <br /> {{{Organization.Address}}} 
+ </body>
+</html>

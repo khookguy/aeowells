@@ -15,7 +15,9 @@
   <aura:attribute name="userId" type="String" />
   <aura:attribute name="cohortId" type="String" />
   <aura:attribute name="aeo_state" type="String" />
-  <aura:handler name="init" action="{!c.getUserAndCohort}" value="{!this}"/>
+  <aura:attribute name="bitlyResili" type="String" />
+  <aura:attribute name="bitlyPostCoach" type="String" />    
+  <aura:handler name="init" action="{!c.getUserCohortAndLinks}" value="{!this}" />
 
   <aura:html tag="style">
     a:hover { color: #00bfff; } li { margin-bottom: 11px; text-decoration:
@@ -43,6 +45,7 @@
           style="
             font-size: 16px;
             font-family: 'Open Sans', sans-serif;
+            font-weight: 600;
             color: #222;
           "
         >
@@ -50,7 +53,7 @@
           recommended process flow, survey overview, and recommendations from
           previous users.<br />
           <ul
-            style="color: #005baa; list-style-type: square"
+            style="color: #005baa; list-style-type: square; font-weight: normal;"
             class="slds-p-around_large"
           >
             <li>
@@ -86,10 +89,9 @@
             </li>
           </ul>
         </div>
-        <div style="font-size: 22px; font-family: montserrat">
+<div style="font-size: 22px; font-family: montserrat">
           RESILI Signup Link
         </div>
-        <!-- <a onclick="{!c.handleReferralLink}" style="text-decoration: underline">Referral Link</a> -->
         <div
           style="
             font-size: 16px;
@@ -97,10 +99,56 @@
             color: #222;
           "
         >
-          <a
+          <!-- <a
             href="{! 'https://resili.aeoworks.org/business-health-assessment/?aeo_state='+v.aeo_state }"
-            >{! 'https://resili.aeoworks.org/business-health-assessment/?aeo_state='+v.aeo_state }</a
+            >{!
+            'https://resili.aeoworks.org/business-health-assessment/?aeo_state='+v.aeo_state
+            }</a
+          >-->
+          <a id='bitlyResili'
+            href="{! v.bitlyResili }"
+            >{! v.bitlyResili }</a
           >
+          <!--<lightning:textarea
+            value="{! 'https://resili.aeoworks.org/business-health-assessment/?aeo_state='+v.aeo_state }"
+            aura:id="copySource"
+            class="slds-hide"
+          />-->
+          <lightning:textarea value="{! v.bitlyResili }"
+              aura:id="copyResiliSource"
+              class='slds-hide' />
+          <lightning:button
+            iconName="utility:copy_to_clipboard"
+            onclick="{!c.copyResiliToClipboard}"
+            label="Copy Link"
+            aura:id="copyToClipboardButton"
+            class="slds-m-left_medium"
+          />
+        </div>
+        <div style="font-size: 22px; font-family: montserrat; margin-top: 10px;">
+          Post-Coaching Survey Link
+        </div>
+        <div
+          style="
+            font-size: 16px;
+            font-family: 'Open Sans', sans-serif;
+            color: #222;
+          "
+        >
+          <a id='bitlyPostCoach'
+            href="{! v.bitlyPostCoach }"
+            >{! v.bitlyPostCoach }</a
+          >
+          <lightning:textarea value="{! v.bitlyPostCoach }"
+              aura:id="copyPostCoachSource"
+              class='slds-hide' />
+          <lightning:button
+            iconName="utility:copy_to_clipboard"
+            onclick="{!c.copyPostCoachToClipboard}"
+            label="Copy Link"
+            aura:id="copyPostCoachToClipboardButton"
+            class="slds-m-left_medium"
+          />
         </div>
         <!--<div Style="Font-size:22px;font-family: montserrat;letter-spacing: 1.2px;">Calendly Login Information<a href="javscript:void(0)" onclick="{!c.canIdPass}" style="text-decoration: underline">[show/Hide]</a></div>
                 <aura:if isTrue="{!v.calendly == 'True'}">

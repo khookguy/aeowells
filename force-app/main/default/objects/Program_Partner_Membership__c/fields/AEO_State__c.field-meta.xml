@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AEO_State__c</fullName>
+    <description>The unencoded aeo_state variable that is used to create the RESILI link using this formula: https://resili.aeoworks.org/business-health-assessment/?aeo_state=btoa(aeo_state)</description>
+    <externalId>false</externalId>
+    <formula>&apos;{&quot;aeo_cohort_id&quot;:&quot;&apos; &amp;  Cohort__c &amp;  &apos;&quot;,&quot;aeo_program_id&quot;:&quot;&apos; &amp;  Program__c &amp; &apos;&quot;}&apos;</formula>
+    <label>AEO State</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

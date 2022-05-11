@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Bitly_Link_To_Resili__c</fullName>
+    <caseSensitive>false</caseSensitive>
+    <description>The bitly link that we provide to entrepreneurs to signup for RESILI.  Uses the aeo_state field in this formula and then turn into a bitly link using Pardot redirect. Redirects to here: https://resili.aeoworks.org/business-health-assessment/?aeo_state=btoa(aeo_state)</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Enter the bitly link from the Pardot redirect here.</inlineHelpText>
+    <label>Bitly Link To Resili</label>
+    <length>255</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>true</unique>
+</CustomField>
